@@ -17,27 +17,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     const firebaseConfig = await fetch('/__/firebase/init.json').then(r => r.json());
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    // 1. COPY TO CLIPBOARD INSTALL COMMAND
-    const copyButton = document.getElementById('btn-copy-install');
-    const copyCommand = document.getElementById('install-command');
-    
-    if (copyButton && copyCommand) {
-        copyButton.addEventListener('click', () => {
-            navigator.clipboard.writeText(copyCommand.innerText)
+    // 1. COPY TO CLIPBOARD GENERIC HANDLER
+    const copyButtons = document.querySelectorAll('.btn-copy');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            let targetId = button.getAttribute('data-copy-target');
+            let targetEl = targetId ? document.getElementById(targetId) : button.previousElementSibling;
+            
+            if (targetEl && targetEl.tagName === 'PRE') {
+                const codeEl = targetEl.querySelector('code');
+                if (codeEl) targetEl = codeEl;
+            }
+
+            if (!targetEl) return;
+
+            navigator.clipboard.writeText(targetEl.innerText.trim())
                 .then(() => {
-                    const copyText = copyButton.querySelector('.copy-text');
-                    copyText.innerText = 'Copied!';
-                    copyButton.style.color = '#00f2fe';
+                    const copyText = button.querySelector('.copy-text');
+                    const originalText = copyText ? copyText.innerText : 'Copy';
+                    if (copyText) copyText.innerText = 'Copied!';
+                    
+                    const originalColor = button.style.color;
+                    button.style.color = '#00f2fe';
+                    
                     setTimeout(() => {
-                        copyText.innerText = 'Copy';
-                        copyButton.style.color = '';
+                        if (copyText) copyText.innerText = originalText;
+                        button.style.color = originalColor;
                     }, 2000);
                 })
                 .catch(err => {
                     console.error('Failed to copy text: ', err);
                 });
         });
-    }
+    });
 
     // 2. INTERACTIVE TERMINAL SIMULATOR
     const terminalTabs = document.querySelectorAll('.terminal-tabs .tab-btn');

@@ -871,12 +871,25 @@ code, pre {
     border-radius: 8px;
     padding: 1rem;
     font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.code-block-container pre {
+    margin: 0;
     overflow-x: auto;
+    flex-grow: 1;
 }
 
 .code-block-container code {
     color: #f8fafc;
     white-space: pre;
+}
+
+.code-block-container .btn-copy {
+    flex-shrink: 0;
 }
 
 .info-note {

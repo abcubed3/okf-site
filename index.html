@@ -57,7 +57,7 @@
                 
                 <div class="install-installer-bar">
                     <code class="install-cmd" id="install-command">curl -sSfL https://okfgo.dev/install.sh | sh</code>
-                    <button class="btn-copy" id="btn-copy-install" aria-label="Copy installation command">
+                    <button class="btn-copy" id="btn-copy-install" data-copy-target="install-command" aria-label="Copy installation command">
                         <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         <span class="copy-text">Copy</span>
                     </button>
@@ -379,6 +379,10 @@ This stores historical transaction logs for payouts. It references the [Users Ta
                         <p>Run the direct shell script installer to fetch the precompiled binary for macOS or Linux:</p>
                         <div class="code-block-container">
                             <pre><code>curl -sSfL https://okfgo.dev/install.sh | sh</code></pre>
+                            <button class="btn-copy" aria-label="Copy installation command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span class="copy-text">Copy</span>
+                            </button>
                         </div>
                         <p class="info-note">The script auto-detects architecture (amd64, arm64) and locations (e.g. <code>/usr/local/bin</code> or <code>~/.local/bin</code>).</p>
                     </div>
@@ -391,6 +395,10 @@ This stores historical transaction logs for payouts. It references the [Users Ta
 cd okf
 go build -o okf main.go
 ./okf help</code></pre>
+                            <button class="btn-copy" aria-label="Copy build commands">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span class="copy-text">Copy</span>
+                            </button>
                         </div>
                     </div>
 
@@ -406,6 +414,10 @@ go build -o okf main.go
     }
   }
 }</code></pre>
+                            <button class="btn-copy" aria-label="Copy MCP configuration">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span class="copy-text">Copy</span>
+                            </button>
                         </div>
                     </div>
                 </div>
