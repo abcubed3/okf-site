@@ -1,24 +1,22 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Firebase config is served by Firebase Hosting at this reserved endpoint.
-// The API key is never hardcoded in source — it is injected server-side by Firebase.
-// See: https://firebase.google.com/docs/hosting/reserved-urls
-const firebaseConfig = await fetch('/__/firebase/init.json').then(r => r.json());
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 // ==========================================
 // OKF-go CLI Marketing Site JavaScript Logic
 // Handles Terminal, Graph BFS, Parser, and Copy
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+// NOTE: Firebase init is inside the async DOMContentLoaded callback to avoid a
+// race condition: a top-level `await` makes the module async, so DOMContentLoaded
+// fires before the module resolves and the listener is registered too late.
+document.addEventListener('DOMContentLoaded', async () => {
+    // Firebase config is served by Firebase Hosting at this reserved endpoint.
+    // The API key is never hardcoded in source — it is injected server-side by Firebase.
+    // See: https://firebase.google.com/docs/hosting/reserved-urls
+    const firebaseConfig = await fetch('/__/firebase/init.json').then(r => r.json());
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     // 1. COPY TO CLIPBOARD INSTALL COMMAND
     const copyButton = document.getElementById('btn-copy-install');
     const copyCommand = document.getElementById('install-command');
