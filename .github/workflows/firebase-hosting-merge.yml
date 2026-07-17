@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - run: mkdir -p public && cp -r index.html style.css app.js *.png *.jpg *.jpeg *.svg *.ico *.webmanifest public/ 2>/dev/null || true
+      - run: |
+          mkdir -p public
+          cp -r index.html style.css app.js *.png *.jpg *.jpeg *.svg *.ico *.webmanifest public/ 2>/dev/null || true
+          curl -sSfL https://raw.githubusercontent.com/abcubed3/okf/main/install.sh -o public/install.sh
       - uses: FirebaseExtended/action-hosting-deploy@v0.6-alpha
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
