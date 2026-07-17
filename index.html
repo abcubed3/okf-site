@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKF-go | Open Knowledge Format CLI Tools written in Go</title>
+    <meta name="description"
+        content="A lightweight OKF toolset in the form of a CLI to bridge the gap between structured enterprise metadata and LLM/AI Agent context via graph-based BFS link traversal and Model Context Protocol.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background glow shapes for developer aesthetic -->
+    <div class="glow-sphere glow-sphere-1" aria-hidden="true"></div>
+    <div class="glow-sphere glow-sphere-2" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo-group">
+                <span class="logo-badge">OKF-go</span>
+                <span class="logo-text">Open Knowledge Format</span>
+            </div>
+            <nav class="site-nav" aria-label="Main Navigation">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#interactive-demo" class="nav-link">Terminal Simulator</a>
+                <a href="#graph-visualization" class="nav-link">Graph BFS</a>
+                <a href="#playground" class="nav-link">Playground</a>
+                <a href="#getting-started" class="nav-link">Get Started</a>
+            </nav>
+            <div class="header-actions">
+                <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary github-btn" id="github-link">
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 3.12.9.01.64.01 1.11.01 1.25 0 .21-.15.47-.55.38A8.014 8.014 0 0 1 0 8c0-4.42 3.58-8 8-8z"></path></svg>
+                    <span>GitHub</span>
+                </a>
+                <a href="#getting-started" class="btn btn-primary header-cta" id="header-cta-install">Install</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <span class="hero-tag">Open Source with MCP Native Tools</span>
+                <h1 class="hero-title">Bridging the Gap Between AI Agents and Enterprise Context</h1>
+                <p class="hero-subtitle">
+                    Stop feeding raw database dumps or arbitrary vector chunks to LLMs. Represent your metadata, tables, schemas, and APIs as a connected, type-safe Markdown knowledge graph with <strong>OKF</strong>.
+                </p>
+                
+                <div class="install-installer-bar">
+                    <code class="install-cmd" id="install-command">curl -sSfL https://okfgo.dev/install.sh | sh</code>
+                    <button class="btn-copy" id="btn-copy-install" aria-label="Copy installation command">
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span class="copy-text">Copy</span>
+                    </button>
+                </div>
+
+                <div class="hero-ctas">
+                    <a href="#interactive-demo" class="btn btn-primary btn-large" id="hero-cta-demo">Explore CLI Commands</a>
+                    <a href="#playground" class="btn btn-secondary btn-large" id="hero-cta-playground">Try the Playground</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Command Simulator Section -->
+        <section class="demo-section" id="interactive-demo">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">High-Performance CLI Utilities</h2>
+                    <p class="section-desc">Experience the OKF-go command-line interface. Switch tabs below to see simulated runs of our core subcommands.</p>
+                </div>
+
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <div class="terminal-title">bash — okf</div>
+                    </div>
+                    
+                    <div class="terminal-tabs" role="tablist" aria-label="CLI Command Tabs">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="terminal-content" id="tab-lint">
+                            okf lint
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-harvest">
+                            okf harvest
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-assemble">
+                            okf assemble
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-mcp">
+                            okf mcp
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-doc">
+                            okf doc
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-lsp">
+                            okf lsp
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-sync">
+                            okf sync
+                        </button>
+                    </div>
+
+                    <div class="terminal-body" id="terminal-content">
+                        <div class="terminal-line"><span class="prompt">$</span> <span class="command-input" id="terminal-command-text">okf lint ./knowledge-base</span></div>
+                        <div class="terminal-output" id="terminal-output-text">
+<!-- Output will be generated via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Context Graph Assembly Section -->
+        <section class="graph-section" id="graph-visualization">
+            <div class="section-container">
+                <div class="grid grid-2-cols">
+                    <div class="graph-info">
+                        <span class="section-tag">Deterministic BFS Assembly</span>
+                        <h2 class="section-title">Context Assembly, Visualized</h2>
+                        <p class="section-desc">
+                            Vector databases fetch fragmented snippets out of order. OKF works differently: starting from a concept, it performs a <strong>Breadth-First Search (BFS)</strong> along explicit relative Markdown links.
+                        </p>
+                        <p class="section-desc">
+                            It pulls in adjacent nodes (like database schemas referenced by tables, or APIs writing to columns) until the target character budget is filled.
+                        </p>
+                        <div class="graph-controls">
+                            <button class="btn btn-primary" id="btn-run-bfs">Animate Context Traversal</button>
+                            <span class="bfs-status" id="bfs-status-text">Ready to traverse...</span>
+                        </div>
+                        
+                        <div class="bfs-steps" id="bfs-steps-container">
+                            <div class="bfs-step" id="step-0"><strong>Root:</strong> Starting BFS at <code>tables/orders</code>...</div>
+                            <div class="bfs-step" id="step-1"><strong>Depth 1:</strong> Following link to <code>tables/users</code> (found in body).</div>
+                            <div class="bfs-step" id="step-2"><strong>Depth 2:</strong> Following link to <code>playbooks/database_cleanup</code>.</div>
+                        </div>
+                    </div>
+
+                    <div class="graph-display-container">
+                        <div class="canvas-glow"></div>
+                        <canvas id="graph-canvas" width="500" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Concept Parser Playground -->
+        <section class="playground-section" id="playground">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Live Concept Parser Playground</h2>
+                    <p class="section-desc">Edit the OKF document YAML frontmatter or body below. Watch our conformance compiler parse, check links, and display structured concept tokens in real-time.</p>
+                </div>
+
+                <div class="playground-grid">
+                    <div class="panel panel-left">
+                        <div class="panel-header">
+                            <span>Markdown Editor (with YAML frontmatter)</span>
+                            <span class="status-pill status-success" id="parser-status">Perfect Match</span>
+                        </div>
+                        <textarea class="code-editor" id="playground-textarea" spellcheck="false">---
+type: Database Table
+title: Transactions Table
+description: High-throughput transaction log for customer accounts.
+resource: postgresql://host/transactions
+tags: [billing, core]
+timestamp: 2026-07-14T22:00:00Z
+---
+
+# Transactions Table
+
+This stores historical transaction logs for payouts. It references the [Users Table](tables/users.md) through the `user_id` field.
+
+## Key Fields
+* `id` (UUID): Primary key.
+* `user_id` (UUID): Failsafe foreign key reference.
+* `amount` (DECIMAL): Transaction value.
+</textarea>
+                    </div>
+
+                    <div class="panel panel-right">
+                        <div class="panel-header">Parsed OKF Concept Object</div>
+                        <div class="parsed-output-container">
+                            <div class="parsed-metadata">
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Concept ID:</span>
+                                    <span class="metadata-value" id="out-id">tables/transactions</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Type:</span>
+                                    <span class="metadata-value-pill" id="out-type">Database Table</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Title:</span>
+                                    <span class="metadata-value" id="out-title">Transactions Table</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Description:</span>
+                                    <span class="metadata-value" id="out-desc">High-throughput transaction log for customer accounts.</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Resource:</span>
+                                    <span class="metadata-value" id="out-resource">postgresql://host/transactions</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Tags:</span>
+                                    <div class="tags-container" id="out-tags">
+                                        <span class="tag-pill">billing</span>
+                                        <span class="tag-pill">core</span>
+                                    </div>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Internal Links:</span>
+                                    <div class="links-container" id="out-links">
+                                        <span class="link-pill">tables/users.md</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="parsed-body-header">Raw Document Body</div>
+                            <pre class="body-pre" id="out-body"># Transactions Table
+
+This stores historical transaction logs for payouts. It references the [Users Table](tables/users.md) through the `user_id` field.
+
+## Key Fields
+* `id` (UUID): Primary key.
+* `user_id` (UUID): Failsafe foreign key reference.
+* `amount` (DECIMAL): Transaction value.</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features Grid -->
+        <section class="features-section" id="features">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Robust Architecture</span>
+                    <h2 class="section-title">Built for Modern AI Integration</h2>
+                    <p class="section-desc">Every element of OKF is optimized to bridge standard development cycles with autonomous agent workflows.</p>
+                </div>
+
+                <div class="features-grid">
+                    <!-- Feature 1 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <h3 class="feature-title">Conformance Engine & Linter</h3>
+                        <p class="feature-text">
+                            Run <code>okf lint</code> to validate YAML schemas, catch unparseable headers, and trace all internal links to prevent disconnected or dead paths.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                        </div>
+                        <h3 class="feature-title">Metadata Harvesters</h3>
+                        <p class="feature-text">
+                            Auto-extract schemas. Point <code>okf harvest</code> at PostgreSQL, MySQL, Spanner, BigQuery, OpenAPI, Git repos, or Web pages.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </div>
+                        <h3 class="feature-title">Dynamic Context Assembly</h3>
+                        <p class="feature-text">
+                            Compile subgraphs instantly. Use BFS link traversal to query surrounding information and output XML blocks structured for direct LLM ingestion.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        </div>
+                        <h3 class="feature-title">Model Context Protocol (MCP)</h3>
+                        <p class="feature-text">
+                            Serve knowledge directly. <code>okf mcp</code> supports Stdio/SSE modes to expose resources, tools, and prompts directly into Cursor, Claude Desktop, and Antigravity.
+                        </p>
+                    </div>
+
+                    <!-- Feature 5 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Interactive HTML Compiler</h3>
+                        <p class="feature-text">
+                            Build static developer docs. Run <code>okf doc</code> to compile your Markdown knowledge bundle into a fully searchable static website with relationship graphs.
+                        </p>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
+                        </div>
+                        <h3 class="feature-title">IDE Language Server (LSP)</h3>
+                        <p class="feature-text">
+                            Get real-time validation. <code>okf lsp</code> implements a Language Server over Stdio, flagging missing metadata fields and broken links inside VS Code or Cursor as you type.
+                        </p>
+                    </div>
+
+                    <!-- Feature 7 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Bi-directional Sync Daemon</h3>
+                        <p class="feature-text">
+                            Unify knowledge bases. <code>okf sync</code> synchronizes concepts dynamically with external sources like Google Drive, Notion, Confluence, and Jira.
+                        </p>
+                    </div>
+
+                    <!-- Feature 8 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Bundle Operations</h3>
+                        <p class="feature-text">
+                            Compare and merge. Use <code>okf diff</code> and <code>okf merge</code> to compare bundles for differences or unify distributed knowledge bases.
+                        </p>
+                    </div>
+
+                    <!-- Feature 9 -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                        </div>
+                        <h3 class="feature-title">AI Curator & Export</h3>
+                        <p class="feature-text">
+                            Intelligent organization. Use the <code>--ai-enrich</code> flag during harvest for AI-powered tagging and categorization, and <code>okf export</code> to publish graphs in JSON-LD format.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Getting Started Guide -->
+        <section class="getting-started-section" id="getting-started">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Getting Started</h2>
+                    <p class="section-desc">Get up and running with the OKF-go tool in seconds.</p>
+                </div>
+
+                <div class="getting-started-grid">
+                    <div class="steps-card">
+                        <h3>1. Quick Installation</h3>
+                        <p>Run the direct shell script installer to fetch the precompiled binary for macOS or Linux:</p>
+                        <div class="code-block-container">
+                            <pre><code>curl -sSfL https://okfgo.dev/install.sh | sh</code></pre>
+                        </div>
+                        <p class="info-note">The script auto-detects architecture (amd64, arm64) and locations (e.g. <code>/usr/local/bin</code> or <code>~/.local/bin</code>).</p>
+                    </div>
+
+                    <div class="steps-card">
+                        <h3>2. Build From Source</h3>
+                        <p>If you have Go installed (v1.26 or higher), you can compile the binary locally:</p>
+                        <div class="code-block-container">
+                            <pre><code>git clone https://github.com/abcubed3/okf.git
+cd okf
+go build -o okf main.go
+./okf help</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="steps-card">
+                        <h3>3. Connect to Claude Desktop</h3>
+                        <p>To use the OKF bundle directly inside Claude Desktop as an MCP resource, update your configuration:</p>
+                        <div class="code-block-container">
+                            <pre><code class="language-json">{
+  "mcpServers": {
+    "okf-knowledge": {
+      "command": "/usr/local/bin/okf",
+      "args": ["server", "--bundle", "/path/to/my-bundle"]
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 OKF-go Project. Open source under the Apache 2.0 License.</p>
+            <div class="footer-links">
+                <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="#features">Specification</a>
+                <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Client-side Logic Script -->
+    <script src="app.js"></script>
+</body>
+</html>
