@@ -34,16 +34,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             navigator.clipboard.writeText(targetEl.innerText.trim())
                 .then(() => {
                     const copyText = button.querySelector('.copy-text');
-                    const originalText = copyText ? copyText.innerText : 'Copy';
-                    if (copyText) copyText.innerText = 'Copied!';
-                    
+                    const copyIcon = button.querySelector('.copy-icon');
                     const originalColor = button.style.color;
                     button.style.color = '#00f2fe';
-                    
-                    setTimeout(() => {
-                        if (copyText) copyText.innerText = originalText;
-                        button.style.color = originalColor;
-                    }, 2000);
+
+                    if (copyText) {
+                        const originalText = copyText.innerText;
+                        copyText.innerText = 'Copied!';
+                        setTimeout(() => {
+                            copyText.innerText = originalText;
+                            button.style.color = originalColor;
+                        }, 2000);
+                    } else if (copyIcon) {
+                        const originalSvg = copyIcon.innerHTML;
+                        // Replace SVG contents with a checkmark path
+                        copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+                        setTimeout(() => {
+                            copyIcon.innerHTML = originalSvg;
+                            button.style.color = originalColor;
+                        }, 2000);
+                    }
                 })
                 .catch(err => {
                     console.error('Failed to copy text: ', err);
