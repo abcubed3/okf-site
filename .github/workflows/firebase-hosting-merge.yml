@@ -22,7 +22,7 @@ jobs:
         run: |
           gcloud run deploy telemetry \
             --source . \
-            --region us-east1 \
+            --region us-east4 \
             --allow-unauthenticated \
             --set-env-vars GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID }},GA_API_SECRET=${{ secrets.GA_API_SECRET }}
 
@@ -31,7 +31,7 @@ jobs:
           cp -r index.html style.css app.js *.png *.jpg *.jpeg *.svg *.ico *.webmanifest public/ 2>/dev/null || true
           curl -sSfL https://raw.githubusercontent.com/abcubed3/okf/main/install.sh -o public/install.sh
       
-      - uses: FirebaseExtended/action-hosting-deploy@v0.6-alpha
+      - uses: FirebaseExtended/action-hosting-deploy@v0.11.0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OKFGO_2600D }}
