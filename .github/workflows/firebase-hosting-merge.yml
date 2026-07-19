@@ -18,7 +18,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       - name: Deploy Cloud Run Telemetry Proxy
-        working-directory: site/functions
+        working-directory: functions
         run: |
           gcloud run deploy telemetry \
             --source . \
