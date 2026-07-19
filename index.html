@@ -8,6 +8,13 @@
     <meta name="description"
         content="A lightweight Open Knowledge Format (OKF) tool suite to bridge the gap between structured enterprise metadata and LLM/AI Agent context via graph-based BFS link traversal and Model Context Protocol.">
 
+    <!-- Open Graph / SEO Tags -->
+    <meta property="og:title" content="OKF-go | Open Knowledge Format Tool Suite">
+    <meta property="og:description" content="Stop feeding raw database dumps to LLMs. Deterministic metadata assembly using graph-based BFS link traversal.">
+    <meta property="og:image" content="https://okfgo.dev/okf_concept_visual.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +58,11 @@
                 <span class="hero-tag">Open Source with AI-Native Tools</span>
                 <h1 class="hero-title">Bridging the Gap Between AI Agents, Everyday Context and Enterprise Metadata</h1>
                 <p class="hero-subtitle">
-                    Stop feeding raw database dumps or arbitrary vector chunks to LLMs. Represent your metadata, tables, schemas, and APIs as a connected, type-safe Markdown knowledge graph with <strong>OKF</strong>.
+                    Vector search hallucinated your database schema again? 
+                    <br/>
+                    <strong>OKF</strong> uses deterministic Breadth-First Search (BFS) to feed AI agents exact, related metadata so they write perfect queries every time. 
+                    <br>
+                    Represent your metadata, tables, schemas, and APIs as a connected, type-safe Markdown knowledge graph.
                 </p>
                 
                 <div class="install-installer-bar">
@@ -65,6 +76,36 @@
                 <div class="hero-ctas">
                     <a href="#interactive-demo" class="btn btn-primary btn-large" id="hero-cta-demo">Explore CLI Commands</a>
                     <a href="#playground" class="btn btn-secondary btn-large" id="hero-cta-playground">Try the Playground</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start Section -->
+        <section class="quick-start-section" id="getting-started">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">3-Step Quick Start</h2>
+                    <p class="section-desc">You are 60 seconds away from giving an LLM deterministic access to your entire schema.</p>
+                </div>
+                <div class="quick-start-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Install</h3>
+                        <p class="step-desc">Download the CLI.</p>
+                        <code class="step-code">curl -sSfL okfgo.dev/install.sh | sh</code>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Harvest</h3>
+                        <p class="step-desc">Extract your database schema into OKF.</p>
+                        <code class="step-code">okf harvest db --driver postgres</code>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Serve</h3>
+                        <p class="step-desc">Expose context via Model Context Protocol.</p>
+                        <code class="step-code">okf mcp --transport stdio</code>
+                    </div>
                 </div>
             </div>
         </section>

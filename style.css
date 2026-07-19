@@ -375,11 +375,13 @@ code, pre {
 
 /* Terminal Simulator Section */
 .terminal-container {
-    background-color: var(--bg-terminal);
-    border: 1px solid var(--border-subtle);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     max-width: 800px;
     margin: 0 auto;
 }
@@ -584,14 +586,16 @@ code, pre {
 }
 
 .panel {
-    background-color: var(--bg-panel-solid);
-    border: 1px solid var(--border-subtle);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     height: 520px;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .panel-header {
@@ -977,5 +981,59 @@ code, pre {
     .footer-container {
         flex-direction: column;
         text-align: center;
+    }
+}
+
+/* Quick Start Section */
+.quick-start-section {
+    padding-top: 1rem;
+}
+.quick-start-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+.step-card {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    font-size: 5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+}
+.step-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-accent-cyan);
+}
+.step-desc {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+.step-code {
+    display: block;
+    background-color: var(--bg-terminal);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    word-break: break-all;
+}
+@media (max-width: 900px) {
+    .quick-start-grid {
+        grid-template-columns: 1fr;
     }
 }

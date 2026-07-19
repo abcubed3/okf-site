@@ -227,14 +227,25 @@ Registering connectors...
     if (canvas && bfsButton) {
         const ctx = canvas.getContext('2d');
         
-        // Define Node structures
+        // Define Node structures with relative coordinates (rx, ry)
         const nodes = [
-            { id: 'tables/orders', label: 'orders', type: 'Root', x: 250, y: 200, r: 24, color: '#00f2fe', state: 'idle' },
-            { id: 'tables/users', label: 'users', type: 'Table', x: 120, y: 120, r: 20, color: '#3b82f6', state: 'idle' },
-            { id: 'apis/create_user', label: 'create_user', type: 'API', x: 80, y: 280, r: 20, color: '#a78bfa', state: 'idle' },
-            { id: 'playbooks/database_cleanup', label: 'db_cleanup', type: 'Playbook', x: 380, y: 120, r: 20, color: '#f472b6', state: 'idle' },
-            { id: 'tables/transactions', label: 'transactions', type: 'Table', x: 380, y: 280, r: 20, color: '#3b82f6', state: 'idle' }
+            { id: 'tables/orders', label: 'orders', type: 'Root', rx: 0.5, ry: 0.5, r: 24, color: '#00f2fe', state: 'idle' },
+            { id: 'tables/users', label: 'users', type: 'Table', rx: 0.24, ry: 0.3, r: 20, color: '#3b82f6', state: 'idle' },
+            { id: 'apis/create_user', label: 'create_user', type: 'API', rx: 0.16, ry: 0.7, r: 20, color: '#a78bfa', state: 'idle' },
+            { id: 'playbooks/database_cleanup', label: 'db_cleanup', type: 'Playbook', rx: 0.76, ry: 0.3, r: 20, color: '#f472b6', state: 'idle' },
+            { id: 'tables/transactions', label: 'transactions', type: 'Table', rx: 0.76, ry: 0.7, r: 20, color: '#3b82f6', state: 'idle' }
         ];
+
+        let hoveredNode = null;
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 400; // Keep height fixed or proportional
+            drawGraph();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
 
         const edges = [
             { from: 'tables/orders', to: 'tables/users', state: 'idle' },
@@ -247,6 +258,12 @@ Registering connectors...
         function drawGraph() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Calculate absolute positions
+            nodes.forEach(n => {
+                n.x = n.rx * canvas.width;
+                n.y = n.ry * canvas.height;
+            });
+
             // Draw Edges
             edges.forEach(edge => {
                 const fromNode = nodes.find(n => n.id === edge.from);
@@ -274,7 +291,9 @@ Registering connectors...
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI);
                 
-                if (node.state === 'active') {
+                const isHovered = hoveredNode && hoveredNode.id === node.id;
+                
+                if (node.state === 'active' || isHovered) {
                     ctx.fillStyle = node.color;
                     ctx.shadowColor = node.color;
                     ctx.shadowBlur = 15;
@@ -291,7 +310,7 @@ Registering connectors...
                 }
                 
                 ctx.fill();
-                if (node.state !== 'active') {
+                if (node.state !== 'active' && !isHovered) {
                     ctx.stroke();
                 }
                 ctx.shadowBlur = 0; // Reset shadow
@@ -307,10 +326,58 @@ Registering connectors...
                 ctx.font = '9px Outfit';
                 ctx.fillText(node.type.toUpperCase(), node.x, node.y - node.r - 6);
             });
+
+            // Draw Tooltip
+            if (hoveredNode) {
+                const tooltipText = hoveredNode.id;
+                ctx.font = '12px JetBrains Mono';
+                const metrics = ctx.measureText(tooltipText);
+                const padding = 8;
+                const tooltipWidth = metrics.width + padding * 2;
+                const tooltipHeight = 24;
+                const tx = hoveredNode.x - tooltipWidth / 2;
+                const ty = hoveredNode.y + hoveredNode.r + 12;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.strokeStyle = hoveredNode.color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(tx, ty, tooltipWidth, tooltipHeight, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.fillText(tooltipText, hoveredNode.x, ty + 16);
+            }
         }
 
-        // Draw initial state
-        drawGraph();
+        // Interactivity
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            let found = null;
+            for (const node of nodes) {
+                const dx = mouseX - node.x;
+                const dy = mouseY - node.y;
+                if (Math.sqrt(dx * dx + dy * dy) <= node.r) {
+                    found = node;
+                    break;
+                }
+            }
+            
+            if (hoveredNode !== found) {
+                hoveredNode = found;
+                canvas.style.cursor = found ? 'pointer' : 'default';
+                drawGraph();
+            }
+        });
+
+        // Initialize canvas sizing
+        resizeCanvas();
+
 
         // BFS Animation steps
         let animationRunning = false;
