@@ -469,7 +469,10 @@ Registering connectors...
                 stepEl.classList.add(className);
                 stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
-        }    // 4. LIVE CONCEPT PARSER PLAYGROUND
+        }
+    }
+
+    // 4. LIVE CONCEPT PARSER PLAYGROUND
     const playgroundTextarea = document.getElementById('playground-textarea');
     const parserStatus = document.getElementById('parser-status');
     const outId = document.getElementById('out-id');
