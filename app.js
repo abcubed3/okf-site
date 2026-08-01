@@ -17,6 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const firebaseConfig = await fetch('/__/firebase/init.json').then(r => r.json());
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
+
+    // 0. THEME SWITCHER LOGIC
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (typeof drawGraph === 'function') {
+                drawGraph();
+            }
+        });
+    }
+
     // 1. COPY TO CLIPBOARD GENERIC HANDLER
     const copyButtons = document.querySelectorAll('.btn-copy');
     copyButtons.forEach(button => {
@@ -259,6 +274,7 @@ Registering connectors...
         // Draw helper functions
         function drawGraph() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
             
             // Calculate absolute positions
             nodes.forEach(n => {
@@ -276,13 +292,13 @@ Registering connectors...
                 ctx.lineTo(toNode.x, toNode.y);
                 
                 if (edge.state === 'traversed') {
-                    ctx.strokeStyle = '#00f2fe';
+                    ctx.strokeStyle = isLight ? '#0284c7' : '#00f2fe';
                     ctx.lineWidth = 3;
                 } else if (edge.state === 'traversing') {
-                    ctx.strokeStyle = '#a78bfa';
+                    ctx.strokeStyle = isLight ? '#7c3aed' : '#a78bfa';
                     ctx.lineWidth = 2.5;
                 } else {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.35)' : 'rgba(255, 255, 255, 0.1)';
                     ctx.lineWidth = 1.5;
                 }
                 ctx.stroke();
@@ -298,15 +314,15 @@ Registering connectors...
                 if (node.state === 'active' || isHovered) {
                     ctx.fillStyle = node.color;
                     ctx.shadowColor = node.color;
-                    ctx.shadowBlur = 15;
+                    ctx.shadowBlur = isLight ? 10 : 15;
                 } else if (node.state === 'completed') {
-                    ctx.fillStyle = '#1e293b';
+                    ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
                     ctx.strokeStyle = node.color;
                     ctx.lineWidth = 2;
                     ctx.shadowBlur = 0;
                 } else {
-                    ctx.fillStyle = '#0f172a';
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.fillStyle = isLight ? '#f1f5f9' : '#0f172a';
+                    ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.5)' : 'rgba(255, 255, 255, 0.2)';
                     ctx.lineWidth = 1.5;
                     ctx.shadowBlur = 0;
                 }
@@ -318,7 +334,7 @@ Registering connectors...
                 ctx.shadowBlur = 0; // Reset shadow
 
                 // Draw Text
-                ctx.fillStyle = '#f8fafc';
+                ctx.fillStyle = (node.state === 'completed' && isLight) ? '#0f172a' : '#f8fafc';
                 ctx.font = 'bold 11px JetBrains Mono';
                 ctx.textAlign = 'center';
                 ctx.fillText(node.label, node.x, node.y + 4);

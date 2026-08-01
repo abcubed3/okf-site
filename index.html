@@ -31,6 +31,18 @@
 
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Inline Theme Script to Prevent FOUC -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Background glow shapes for developer aesthetic -->
@@ -41,7 +53,7 @@
         <div class="header-container">
             <a href="#" class="logo-group" aria-label="OKF-go Home">
                 <img src="favicon.svg" alt="OKF-go Logo" class="header-logo-icon" width="36" height="36">
-                <span class="logo-text">OKF<span class="logo-accent">-go</span></span>
+                <span class="logo-text">OKFgo</span>
                 <span class="logo-badge">v0.2</span>
             </a>
             <nav class="site-nav" aria-label="Main Navigation">
@@ -51,6 +63,22 @@
                 <!-- <a href="#getting-started" class="nav-link">Get Started</a> -->
             </nav>
             <div class="header-actions">
+                <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
                 <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer" class="btn btn-secondary github-btn" id="github-link">
                     <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 3.12.9.01.64.01 1.11.01 1.25 0 .21-.15.47-.55.38A8.014 8.014 0 0 1 0 8c0-4.42 3.58-8 8-8z"></path></svg>
                     <span>GitHub</span>
@@ -526,9 +554,9 @@ go build -o okf main.go
         <div class="footer-container">
             <div class="footer-brand">
                 <img src="favicon.svg" alt="OKF-go Logo" class="footer-logo-icon" width="28" height="28">
-                <span class="footer-logo-text">OKF<span class="logo-accent">-go</span></span>
+                <span class="footer-logo-text">OKFgo</span>
             </div>
-            <p>&copy; 2026 OKF-go. Open source under the Apache 2.0 License.</p>
+            <p>&copy; 2026 OKFgo. Open source under the Apache 2.0 License.</p>
             <div class="footer-links">
                 <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md" target="_blank" rel="noopener noreferrer">OKF Specification</a>
