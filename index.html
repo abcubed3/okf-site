@@ -22,6 +22,13 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -32,9 +39,11 @@
 
     <header class="site-header">
         <div class="header-container">
-            <div class="logo-group">
-                <span class="logo-badge">OKF-go</span>
-            </div>
+            <a href="#" class="logo-group" aria-label="OKF-go Home">
+                <img src="favicon.svg" alt="OKF-go Logo" class="header-logo-icon" width="36" height="36">
+                <span class="logo-text">OKF<span class="logo-accent">-go</span></span>
+                <span class="logo-badge">v0.2</span>
+            </a>
             <nav class="site-nav" aria-label="Main Navigation">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#graph-visualization" class="nav-link">Context Graph</a>
@@ -515,6 +524,10 @@ go build -o okf main.go
 
     <footer class="site-footer">
         <div class="footer-container">
+            <div class="footer-brand">
+                <img src="favicon.svg" alt="OKF-go Logo" class="footer-logo-icon" width="28" height="28">
+                <span class="footer-logo-text">OKF<span class="logo-accent">-go</span></span>
+            </div>
             <p>&copy; 2026 OKF-go. Open source under the Apache 2.0 License.</p>
             <div class="footer-links">
                 <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer">GitHub</a>

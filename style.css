@@ -124,24 +124,52 @@ code, pre {
 .logo-group {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    text-decoration: none;
+    transition: transform var(--transition-fast);
+}
+
+.logo-group:hover {
+    transform: translateY(-1px);
+}
+
+.header-logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.4));
+    transition: filter var(--transition-fast), transform var(--transition-fast);
+}
+
+.logo-group:hover .header-logo-icon {
+    filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.8));
+    transform: scale(1.05);
 }
 
 .logo-badge {
     background: var(--gradient-purple-blue);
     color: #fff;
     font-weight: 700;
-    font-size: 0.85rem;
-    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 6px;
     letter-spacing: 0.05em;
     box-shadow: var(--shadow-glow-purple);
 }
 
 .logo-text {
-    font-weight: 600;
-    font-size: 1.15rem;
-    letter-spacing: -0.01em;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.logo-accent {
+    background: var(--gradient-blue-cyan);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .site-nav {
@@ -919,6 +947,26 @@ code, pre {
     gap: 1.5rem;
     font-size: 0.9rem;
     color: var(--text-muted);
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.4));
+}
+
+.footer-logo-text {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
 }
 
 .footer-links {
