@@ -71,12 +71,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         'tab-lint': {
             command: 'okf lint ./knowledge-base',
             output: `Linting OKF bundle at: <span class="ansi-bold">/Users/developer/knowledge-base</span>...
+<span class="ansi-cyan">[INFO]</span>  OKF Spec Version: <span class="ansi-bold">v0.2</span>
+<span class="ansi-green">[PASS]</span>  OKF v0.2 Trust Signals check: 0 errors
 <span class="ansi-yellow">[WARN]</span>  playbooks/database_cleanup.md: description field is missing (recommended)
-<span class="ansi-green">[WARN]</span>  tables/users.md: link checks passed
-<span class="ansi-green">[WARN]</span>  tables/orders.md: link checks passed
+<span class="ansi-green">[PASS]</span>  metrics/mrr.md: provenance & attestation verified
+<span class="ansi-green">[PASS]</span>  tables/users.md: link checks passed
 
 Validation complete: <span class="ansi-green">0 errors</span>, <span class="ansi-yellow">1 warnings</span> found.
-Validation complete: OKF bundle is perfectly valid! 🎉`
+Validation complete: OKF v0.2 bundle is perfectly valid! 🎉`
         },
         'tab-harvest': {
             command: 'okf harvest db --driver postgres --conn "postgresql://localhost:5432/my_db" --output ./bundle/tables',
@@ -467,18 +469,20 @@ Registering connectors...
                 stepEl.classList.add(className);
                 stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
-        }
-    }
-
-    // 4. LIVE CONCEPT PARSER PLAYGROUND
+        }    // 4. LIVE CONCEPT PARSER PLAYGROUND
     const playgroundTextarea = document.getElementById('playground-textarea');
     const parserStatus = document.getElementById('parser-status');
     const outId = document.getElementById('out-id');
+    const outVersion = document.getElementById('out-version');
     const outType = document.getElementById('out-type');
     const outTitle = document.getElementById('out-title');
     const outDesc = document.getElementById('out-desc');
+    const outStatus = document.getElementById('out-status');
+    const outStale = document.getElementById('out-stale');
+    const outVerified = document.getElementById('out-verified');
     const outResource = document.getElementById('out-resource');
     const outTags = document.getElementById('out-tags');
+    const outSources = document.getElementById('out-sources');
     const outLinks = document.getElementById('out-links');
     const outBody = document.getElementById('out-body');
 
@@ -506,9 +510,27 @@ Registering connectors...
 
         // Parse key-value frontmatter lines manually (lightweight YAML parser)
         const frontmatter = {};
+        const sourcesList = [];
+        let currentSourceUri = null;
+        let verifiedBy = null;
+        let verifiedTier = null;
+        
         const lines = frontmatterText.split(/\r?\n/);
         
         lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('uri:')) {
+                let uri = trimmed.substring(4).trim().replace(/^["']|["']$/g, '');
+                sourcesList.push(uri);
+            }
+            if (trimmed.startsWith('tier:')) {
+                verifiedTier = trimmed.substring(5).trim().replace(/^["']|["']$/g, '');
+            }
+            if (trimmed.startsWith('- by:') || trimmed.startsWith('by:')) {
+                let byVal = trimmed.substring(trimmed.indexOf('by:') + 3).trim().replace(/^["']|["']$/g, '');
+                if (!verifiedBy) verifiedBy = byVal;
+            }
+
             const separatorIdx = line.indexOf(':');
             if (separatorIdx > 0) {
                 const key = line.substring(0, separatorIdx).trim();
@@ -523,7 +545,9 @@ Registering connectors...
                     val = val.substring(1, val.length - 1);
                 }
                 
-                frontmatter[key] = val;
+                if (!frontmatter[key]) {
+                    frontmatter[key] = val;
+                }
             }
         });
 
@@ -537,7 +561,7 @@ Registering connectors...
         if (!frontmatter.title || !frontmatter.description) {
             setParserStatus('warning', 'Missing recommended "title" or "description"');
         } else {
-            setParserStatus('success', 'Perfect Match');
+            setParserStatus('success', 'Perfect Match (OKF v0.2 Compliant)');
         }
 
         // Search for relative links in body e.g. [Link Text](path/file.md)
@@ -552,52 +576,83 @@ Registering connectors...
         let inferredId = 'concept_document';
         if (frontmatter.title) {
             const folder = frontmatter.type.toLowerCase().includes('table') ? 'tables' : 
+                           frontmatter.type.toLowerCase().includes('metric') ? 'metrics' :
                            frontmatter.type.toLowerCase().includes('api') ? 'apis' : 'concepts';
             inferredId = `${folder}/${frontmatter.title.toLowerCase().replace(/\s+/g, '_').replace(/_table$/, '')}`;
         }
         
         // Update UI
-        outId.innerText = inferredId;
-        outType.innerText = frontmatter.type;
-        outTitle.innerText = frontmatter.title || '(Untitled)';
-        outDesc.innerText = frontmatter.description || '(No description)';
-        outResource.innerText = frontmatter.resource || 'None';
+        if (outId) outId.innerText = inferredId;
+        if (outVersion) outVersion.innerText = frontmatter.okf_version ? `v${frontmatter.okf_version}` : 'v0.2';
+        if (outType) outType.innerText = frontmatter.type;
+        if (outTitle) outTitle.innerText = frontmatter.title || '(Untitled)';
+        if (outDesc) outDesc.innerText = frontmatter.description || '(No description)';
+        if (outStatus) outStatus.innerText = frontmatter.status || 'stable';
+        if (outStale) outStale.innerText = frontmatter.stale_after || 'None';
+        if (outVerified) {
+            let verText = verifiedTier || 'human';
+            if (verifiedBy) verText += ` (${verifiedBy})`;
+            outVerified.innerText = verText;
+        }
+        if (outResource) outResource.innerText = frontmatter.resource || 'None';
         
         // Display tags
-        outTags.innerHTML = '';
-        if (Array.isArray(frontmatter.tags)) {
-            frontmatter.tags.forEach(tag => {
+        if (outTags) {
+            outTags.innerHTML = '';
+            if (Array.isArray(frontmatter.tags)) {
+                frontmatter.tags.forEach(tag => {
+                    const pill = document.createElement('span');
+                    pill.className = 'tag-pill';
+                    pill.innerText = tag;
+                    outTags.appendChild(pill);
+                });
+            } else if (frontmatter.tags) {
                 const pill = document.createElement('span');
                 pill.className = 'tag-pill';
-                pill.innerText = tag;
+                pill.innerText = frontmatter.tags;
                 outTags.appendChild(pill);
-            });
-        } else if (frontmatter.tags) {
-            const pill = document.createElement('span');
-            pill.className = 'tag-pill';
-            pill.innerText = frontmatter.tags;
-            outTags.appendChild(pill);
-        } else {
-            outTags.innerHTML = '<span class="text-muted">None</span>';
+            } else {
+                outTags.innerHTML = '<span class="text-muted">None</span>';
+            }
+        }
+
+        // Display Sources (Provenance)
+        if (outSources) {
+            outSources.innerHTML = '';
+            if (sourcesList.length > 0) {
+                sourcesList.forEach(src => {
+                    const pill = document.createElement('span');
+                    pill.className = 'link-pill';
+                    // Shorten displayed URL if needed
+                    let displayUrl = src.replace(/^https?:\/\//, '');
+                    pill.innerText = displayUrl;
+                    outSources.appendChild(pill);
+                });
+            } else {
+                outSources.innerHTML = '<span class="text-muted">No external sources linked</span>';
+            }
         }
 
         // Display links
-        outLinks.innerHTML = '';
-        if (links.length > 0) {
-            links.forEach(link => {
-                const pill = document.createElement('span');
-                pill.className = 'link-pill';
-                pill.innerText = link;
-                outLinks.appendChild(pill);
-            });
-        } else {
-            outLinks.innerHTML = '<span class="text-muted">No links detected</span>';
+        if (outLinks) {
+            outLinks.innerHTML = '';
+            if (links.length > 0) {
+                links.forEach(link => {
+                    const pill = document.createElement('span');
+                    pill.className = 'link-pill';
+                    pill.innerText = link;
+                    outLinks.appendChild(pill);
+                });
+            } else {
+                outLinks.innerHTML = '<span class="text-muted">No links detected</span>';
+            }
         }
 
-        outBody.innerText = bodyText;
+        if (outBody) outBody.innerText = bodyText;
     }
 
     function setParserStatus(type, message) {
+        if (!parserStatus) return;
         parserStatus.className = 'status-pill';
         if (type === 'success') {
             parserStatus.classList.add('status-success');
@@ -612,12 +667,17 @@ Registering connectors...
     }
 
     function clearParsedUI() {
-        outId.innerText = '—';
-        outType.innerText = '—';
-        outTitle.innerText = '—';
-        outDesc.innerText = '—';
-        outResource.innerText = '—';
-        outTags.innerHTML = '';
-        outLinks.innerHTML = '';
+        if (outId) outId.innerText = '—';
+        if (outVersion) outVersion.innerText = '—';
+        if (outType) outType.innerText = '—';
+        if (outTitle) outTitle.innerText = '—';
+        if (outDesc) outDesc.innerText = '—';
+        if (outStatus) outStatus.innerText = '—';
+        if (outStale) outStale.innerText = '—';
+        if (outVerified) outVerified.innerText = '—';
+        if (outResource) outResource.innerText = '—';
+        if (outTags) outTags.innerHTML = '';
+        if (outSources) outSources.innerHTML = '';
+        if (outLinks) outLinks.innerHTML = '';
     }
 });
