@@ -531,27 +531,45 @@ Registering connectors...
         const frontmatter = {};
         const sourcesList = [];
         let currentSourceUri = null;
-        let verifiedBy = null;
-        let verifiedTier = null;
+        const verifiedActors = [];
+        let inVerifiedBlock = false;
+        let inSourcesBlock = false;
         
         const lines = frontmatterText.split(/\r?\n/);
         
         lines.forEach(line => {
             const trimmed = line.trim();
-            if (trimmed.startsWith('uri:')) {
+            if (trimmed.startsWith('sources:')) {
+                inSourcesBlock = true;
+                inVerifiedBlock = false;
+            } else if (trimmed.startsWith('verified:')) {
+                inVerifiedBlock = true;
+                inSourcesBlock = false;
+                // Check if inline bare mapping: verified: { by: "...", at: "..." }
+                const inlineBy = trimmed.match(/by:\s*["']?([^"',}\s]+)["']?/);
+                if (inlineBy) {
+                    verifiedActors.push(inlineBy[1]);
+                }
+            } else if (line.match(/^[a-zA-Z0-9_-]+:/)) {
+                // Any other top-level key ends verified/sources blocks
+                inSourcesBlock = false;
+                inVerifiedBlock = false;
+            }
+
+            if (inSourcesBlock && trimmed.startsWith('uri:')) {
                 let uri = trimmed.substring(4).trim().replace(/^["']|["']$/g, '');
                 sourcesList.push(uri);
             }
-            if (trimmed.startsWith('tier:')) {
-                verifiedTier = trimmed.substring(5).trim().replace(/^["']|["']$/g, '');
-            }
-            if (trimmed.startsWith('- by:') || trimmed.startsWith('by:')) {
-                let byVal = trimmed.substring(trimmed.indexOf('by:') + 3).trim().replace(/^["']|["']$/g, '');
-                if (!verifiedBy) verifiedBy = byVal;
+
+            if (inVerifiedBlock) {
+                const byMatch = trimmed.match(/(?:^-\s*by:|^by:)\s*["']?([^"',}\s]+)["']?/);
+                if (byMatch) {
+                    verifiedActors.push(byMatch[1]);
+                }
             }
 
             const separatorIdx = line.indexOf(':');
-            if (separatorIdx > 0) {
+            if (separatorIdx > 0 && !line.trim().startsWith('-')) {
                 const key = line.substring(0, separatorIdx).trim();
                 let val = line.substring(separatorIdx + 1).trim();
                 
@@ -609,8 +627,21 @@ Registering connectors...
         if (outStatus) outStatus.innerText = frontmatter.status || 'stable';
         if (outStale) outStale.innerText = frontmatter.stale_after || 'None';
         if (outVerified) {
-            let verText = verifiedTier || 'human';
-            if (verifiedBy) verText += ` (${verifiedBy})`;
+            // Derive trust tier according to OKF Spec §5.3
+            let derivedTier = 'unverified';
+            if (verifiedActors.length > 0) {
+                const hasHuman = verifiedActors.some(actor => actor.toLowerCase().startsWith('human:'));
+                const hasMachine = verifiedActors.some(actor => !actor.toLowerCase().startsWith('human:') && actor.trim() !== '');
+                if (hasHuman) {
+                    derivedTier = 'human-reviewed';
+                } else if (hasMachine) {
+                    derivedTier = 'machine-confirmed';
+                }
+            }
+            let verText = derivedTier;
+            if (verifiedActors.length > 0) {
+                verText += ` (${verifiedActors.join(', ')})`;
+            }
             outVerified.innerText = verText;
         }
         if (outResource) outResource.innerText = frontmatter.resource || 'None';
