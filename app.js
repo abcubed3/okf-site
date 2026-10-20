@@ -170,14 +170,14 @@ Writing destination file...
 To calculate Monthly Recurring Revenue (MRR), you must use the certified attestation query approved by <span class="ansi-cyan">finance-team@company.com</span> (<span class="ansi-green">human-reviewed</span>):
 
 <span class="ansi-bold">Attested Query (BigQuery / SQL-2024):</span>
-<span class="ansi-blue">```sql</span>
+<span class="ansi-blue">\`\`\`sql</span>
 <span class="ansi-bold">SELECT</span>
   DATE_TRUNC(created_at, MONTH) <span class="ansi-bold">AS</span> revenue_month,
   SUM(amount) <span class="ansi-bold">AS</span> total_mrr
 <span class="ansi-bold">FROM</span> <span class="ansi-yellow">&#96;my-project.analytics.subscriptions&#96;</span>
 <span class="ansi-bold">WHERE</span> status = 'active'
 <span class="ansi-bold">GROUP BY</span> 1
-<span class="ansi-blue">```</span>
+<span class="ansi-blue">\`\`\`</span>
 
 <span class="ansi-muted">Sources Cited: [metrics/mrr] (stale_after: 2027-01-01), [tables/subscriptions]</span>
 --------------------------------------------------------------------------------`
