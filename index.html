@@ -54,7 +54,7 @@
             <a href="#" class="logo-group" aria-label="OKF-go Home">
                 <img src="favicon.svg" alt="OKF-go Logo" class="header-logo-icon" width="36" height="36">
                 <span class="logo-text">OKFgo</span>
-                <span class="logo-badge">v0.2</span>
+                <span class="logo-badge">v1.0.4</span>
             </a>
             <nav class="site-nav" aria-label="Main Navigation">
                 <a href="#features" class="nav-link">Features</a>
@@ -92,14 +92,14 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-container">
-                <span class="hero-tag">Open Source • OKF Spec v0.2 Ready</span>
+                <span class="hero-tag">✨ Release v1.0.4 • AI Agent Skills &amp; Grounded Q&amp;A • OKF Spec v0.2</span>
                 <h1 class="hero-title">Bridging the Gap Between AI Agents, Everyday Context and Enterprise Metadata</h1>
                 <p class="hero-subtitle">
                     Vector search hallucinated your database schema again? 
                     <br/>
                     <strong>OKF</strong> uses deterministic Breadth-First Search (BFS) to feed AI agents exact, related metadata so they write perfect queries every time. 
                     <br>
-                    Fully supports <strong>OKF Spec v0.2</strong> with built-in Trust Signals, Provenance, Verification Tiers, and Attested Computation.
+                    Compile portable <strong>Agent Skills</strong> for Antigravity, Claude, and Cursor with <code>okf skill</code>, query your knowledge base using grounded AI via <code>okf ask</code>, and verify trust signals under <strong>OKF Spec v0.2</strong>.
                 </p>
                 
                 <div class="install-installer-bar">
@@ -121,8 +121,8 @@
         <section class="quick-start-section" id="getting-started">
             <div class="section-container">
                 <div class="section-header">
-                    <h2 class="section-title">3-Step Quick Start</h2>
-                    <p class="section-desc">You are 60 seconds away from giving an LLM deterministic access to your entire schema.</p>
+                    <h2 class="section-title">4-Step Quick Start</h2>
+                    <p class="section-desc">You are 60 seconds away from giving AI agents deterministic access to your verified enterprise metadata.</p>
                 </div>
                 <div class="quick-start-grid">
                     <div class="step-card">
@@ -139,6 +139,12 @@
                     </div>
                     <div class="step-card">
                         <div class="step-number">3</div>
+                        <h3 class="step-title">Skill &amp; Ask</h3>
+                        <p class="step-desc">Export Agent Skills or query with grounded AI.</p>
+                        <code class="step-code">okf skill export &amp;&amp; okf ask "MRR formula"</code>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
                         <h3 class="step-title">Serve</h3>
                         <p class="step-desc">Expose context via Model Context Protocol.</p>
                         <code class="step-code">okf mcp --transport stdio</code>
@@ -168,6 +174,12 @@
                     <div class="terminal-tabs" role="tablist" aria-label="CLI Command Tabs">
                         <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="terminal-content" id="tab-lint">
                             okf lint
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-skill">
+                            okf skill
+                        </button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-ask">
+                            okf ask
                         </button>
                         <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-harvest">
                             okf harvest
@@ -368,6 +380,28 @@ MRR measures predictable subscription revenue components. It references the [MRR
                         </p>
                     </div>
 
+                    <!-- Feature: AI Agent Skills Engine -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><line x1="9" y1="7" x2="15" y2="7"></line><line x1="9" y1="11" x2="13" y2="11"></line></svg>
+                        </div>
+                        <h3 class="feature-title">AI Agent Skills Engine</h3>
+                        <p class="feature-text">
+                            Compile verified knowledge into production Agent Skills (<code>SKILL.md</code>) for Google Antigravity, Claude Code, Cursor, and Codex with <code>okf skill export</code>. Or run <code>okf skill install</code> for workspace setup.
+                        </p>
+                    </div>
+
+                    <!-- Feature: Grounded AI Q&A -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Grounded AI Q&amp;A</h3>
+                        <p class="feature-text">
+                            Ask natural language questions from the CLI with <code>okf ask</code>. Combines graph BFS context assembly with Gemini models for hallucination-free answers citing verified sources and verbatim SQL queries.
+                        </p>
+                    </div>
+
                     <!-- Feature 1 -->
                     <div class="feature-card">
                         <div class="feature-icon">
@@ -408,7 +442,7 @@ MRR measures predictable subscription revenue components. It references the [MRR
                         </div>
                         <h3 class="feature-title">Model Context Protocol (MCP)</h3>
                         <p class="feature-text">
-                            Serve knowledge directly. <code>okf mcp</code> supports Stdio/SSE modes to expose resources, tools, and prompts directly into Cursor, Claude Desktop, and Antigravity.
+                            Serve knowledge directly. <code>okf mcp</code> exposes tools like <code>assemble_context</code>, <code>export_agent_skill</code>, and <code>ask_knowledge_base</code> directly to Claude Desktop, Cursor, and Antigravity.
                         </p>
                     </div>
 
@@ -540,6 +574,24 @@ go build -o okf main.go
   }
 }</code></pre>
                             <button class="btn-copy" aria-label="Copy MCP configuration">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="steps-card">
+                        <h3>4. AI Agent Skills &amp; Grounded Q&amp;A</h3>
+                        <p>Export your knowledge bundle directly to your autonomous coding agent or ask questions from your terminal:</p>
+                        <div class="code-block-container">
+                            <pre><code># Install official OKF skill into .agents/skills/okf
+okf skill install
+
+# Compile bundle into an Agent Skill
+okf skill export --bundle ./knowledge --output .agents/skills/data/SKILL.md
+
+# Grounded natural language query with Gemini
+okf ask "What is the formula for MRR?" --bundle ./knowledge</code></pre>
+                            <button class="btn-copy" aria-label="Copy AI skills commands">
                                 <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>

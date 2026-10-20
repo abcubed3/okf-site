@@ -138,8 +138,49 @@ Generating OKF concepts...
     * search_concepts   
     * get_concept
     * assemble_context
+    * <span class="ansi-green">export_agent_skill</span> (Compile bundle to SKILL.md)
+    * <span class="ansi-green">ask_knowledge_base</span> (Grounded Q&A with trust signals)
 
 <span class="ansi-bold ansi-cyan">Server is running. Waiting for JSON-RPC messages on stdin...</span>`
+        },
+        'tab-skill': {
+            command: 'okf skill export --bundle ./knowledge --output .agents/skills/data-warehouse/SKILL.md --name "data-warehouse"',
+            output: `Reading OKF bundle from: <span class="ansi-bold">./knowledge</span>...
+Found <span class="ansi-cyan">14</span> concepts (4 tables, 6 metrics, 2 attestations, 2 playbooks).
+Filtering concepts... (all matching domain)
+Synthesizing Agent Skill directives:
+  <span class="ansi-green">[OK]</span> Strict schema fidelity rules generated
+  <span class="ansi-green">[OK]</span> 2 sanctioned computation queries embedded (MRR, Churn)
+  <span class="ansi-green">[OK]</span> Trust signals & freshness timestamps mapped
+Writing destination file...
+  <span class="ansi-bold ansi-green">[SUCCESS]</span> Compiled OKF bundle into Agent Skill at:
+  <span class="ansi-bold">.agents/skills/data-warehouse/SKILL.md</span> 🎉
+
+<span class="ansi-cyan">AI coding agents (Antigravity, Claude, Cursor) now have verified domain context!</span>`
+        },
+        'tab-ask': {
+            command: 'okf ask "What query should I use to calculate monthly recurring revenue?" --bundle ./knowledge',
+            output: `🔍 OKF Knowledge Steward Query: <span class="ansi-bold">"What query should I use to calculate monthly recurring revenue?"</span>
+🌱 Seed Concept: <span class="ansi-cyan">attestations/mrr_query</span>
+🔗 Referenced Subgraph Nodes (3): <span class="ansi-bold">attestations/mrr_query, metrics/mrr, tables/subscriptions</span>
+📐 Sanctioned Queries Found: <span class="ansi-green">1 verified</span>
+--------------------------------------------------------------------------------
+<span class="ansi-bold ansi-green">### Grounded Context Answer (Gemini 2.5 Flash):</span>
+
+To calculate Monthly Recurring Revenue (MRR), you must use the certified attestation query approved by <span class="ansi-cyan">finance-team@company.com</span> (<span class="ansi-green">human-reviewed</span>):
+
+<span class="ansi-bold">Attested Query (BigQuery / SQL-2024):</span>
+<span class="ansi-blue">```sql</span>
+<span class="ansi-bold">SELECT</span>
+  DATE_TRUNC(created_at, MONTH) <span class="ansi-bold">AS</span> revenue_month,
+  SUM(amount) <span class="ansi-bold">AS</span> total_mrr
+<span class="ansi-bold">FROM</span> <span class="ansi-yellow">&#96;my-project.analytics.subscriptions&#96;</span>
+<span class="ansi-bold">WHERE</span> status = 'active'
+<span class="ansi-bold">GROUP BY</span> 1
+<span class="ansi-blue">```</span>
+
+<span class="ansi-muted">Sources Cited: [metrics/mrr] (stale_after: 2027-01-01), [tables/subscriptions]</span>
+--------------------------------------------------------------------------------`
         },
         'tab-doc': {
             command: 'okf doc --bundle ./knowledge-base --output ./docs',
