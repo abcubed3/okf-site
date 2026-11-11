@@ -58,6 +58,7 @@
             <nav class="site-nav" aria-label="Main Navigation">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#graph-visualization" class="nav-link">Context Graph</a>
+                <a href="#mcp-tools" class="nav-link">MCP Tools</a>
                 <a href="#agent-skill" class="nav-link">Agent Skill</a>
                 <a href="#playground" class="nav-link">Playground</a>
                 <!-- <a href="#getting-started" class="nav-link">Get Started</a> -->
@@ -439,6 +440,64 @@
             </div>
         </section>
 
+
+        <!-- MCP Tools -->
+        <section class="features-section" id="mcp-tools">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Model Context Protocol</span>
+                    <h2 class="section-title">OKF MCP Tools</h2>
+                    <p class="section-desc">Connect an MCP-compatible agent to the OKF server to explore concepts, assemble context, and ask grounded questions.</p>
+                </div>
+
+                <div class="getting-started-grid">
+                    <div class="steps-card">
+                        <h3>Run MCP with Docker Compose</h3>
+                        <p>Run MCP over HTTP with Docker Compose. Save this as <code>compose.yaml</code> and change <code>my_bundle_location</code> to the path to your bundle:</p>
+                        <div class="code-block-container">
+                            <pre id="okf-compose-config"><code>services:
+  okf-kb:
+    image: ghcr.io/abcubed3/okf:latest
+    command: ["mcp", "--bundle", "/bundle", "--transport", "http", "--port", "8080"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./my_bundle_location:/bundle:ro</code></pre>
+                            <button class="btn-copy" data-copy-target="okf-compose-config" aria-label="Copy Docker Compose configuration">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1-2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>list_concepts</code></h3>
+                        <p class="feature-text">List all concepts in the OKF bundle with their types and descriptions.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>search_concepts</code></h3>
+                        <p class="feature-text">Search concepts by query across IDs, titles, descriptions, or tags, or filter by type or tag.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>get_concept</code></h3>
+                        <p class="feature-text">Retrieve a specific OKF concept document by its unique ID, such as <code>tables/users</code>.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>assemble_context</code></h3>
+                        <p class="feature-text">Build a pruned, cohesive context subset of the concept graph from a concept ID by traversing related links.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>export_agent_skill</code></h3>
+                        <p class="feature-text">Compile the OKF bundle, or a filtered tag/type subset, into an AI Agent Skill (<code>SKILL.md</code>) for IDE coding agents.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>ask_knowledge_base</code></h3>
+                        <p class="feature-text">Answer natural-language questions grounded strictly in OKF bundle concepts and attested computations.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
 
         <!-- Agent Skill Installation -->
         <section class="getting-started-section" id="agent-skill">
