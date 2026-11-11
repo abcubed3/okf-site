@@ -153,6 +153,30 @@
             </div>
         </section>
 
+        <!-- Agent Setup Guide -->
+        <section class="getting-started-section" id="agent-setup">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Agent Setup</span>
+                    <h2 class="section-title">Set Up OKF with an Agent</h2>
+                    <p class="section-desc">Copy this prompt into your coding agent to install the OKF CLI and Agent Skill, then verify and report what was installed.</p>
+                </div>
+                <div class="getting-started-grid">
+                    <div class="steps-card">
+                        <h3>Agent setup prompt</h3>
+                        <pre class="step-code step-code-prompt"><code id="agent-setup-prompt">Set up OKF in this environment:
+1. Check the OS and architecture. Choose one documented CLI install method that works here: the official installer (curl -sSfL https://okfgo.dev/install.sh | sh) or build from source (git clone https://github.com/abcubed3/okf.git, then cd okf and go build -o okf main.go). Use another documented option if needed.
+2. Add the OKF Agent Skill with: npx skills add https://github.com/abcubed3/okf/skills
+3. Verify the CLI and skill are installed. Report the installation method, CLI version and path, skill name and path, and any files or configuration created. Clearly report anything that could not be installed or verified.</code></pre>
+                        <button class="btn-copy" data-copy-target="agent-setup-prompt" aria-label="Copy OKF agent setup prompt">
+                            <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span class="copy-text">Copy Prompt</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Command Simulator Section -->
         <section class="demo-section" id="interactive-demo">
             <div class="section-container">
