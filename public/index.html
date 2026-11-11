@@ -59,6 +59,7 @@
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#graph-visualization" class="nav-link">Context Graph</a>
                 <a href="#playground" class="nav-link">Playground</a>
+                <a href="#agent-skill" class="nav-link">Agent Skill</a>
                 <!-- <a href="#getting-started" class="nav-link">Get Started</a> -->
             </nav>
             <div class="header-actions">
@@ -520,6 +521,40 @@ MRR measures predictable subscription revenue components. It references the [MRR
                         <p class="feature-text">
                             Written in highly-optimized Go. Parses ~97k concepts/sec, executes 200-node graph BFS context assembly in &lt;40&mu;s, and validates full 100-concept bundles in ~125&mu;s.
                         </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Skill Installation -->
+        <section class="getting-started-section" id="agent-skill">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Agent Skills</span>
+                    <h2 class="section-title">Add the OKF Agent Skill</h2>
+                    <p class="section-desc">Use your coding agent to create OKF bundles and edit existing concepts and metadata.</p>
+                    <p class="section-desc">The skill helps keep bundles compliant with OKF Spec v0.2, records changes in log entries, and keeps referential integrity.</p>
+                </div>
+
+                <div class="getting-started-grid">
+                    <div class="steps-card">
+                        <h3>Install from GitHub</h3>
+                        <p>Run this command from your project directory:</p>
+                        <div class="code-block-container">
+                            <pre><code>npx skills add https://github.com/abcubed3/okf/skills</code></pre>
+                            <button class="btn-copy" aria-label="Copy Agent Skill installation command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                        <p class="info-note">Browse the <a href="https://github.com/abcubed3/okf/tree/main/skills" target="_blank" rel="noopener noreferrer">OKF Agent Skills on GitHub</a>.</p>
+                        <h3>Try it</h3>
+                        <p>Once the skill is installed, ask your coding agent to create or edit an OKF bundle with:</p>
+                        <div class="code-block-container">
+                            <pre><code>/okf</code></pre>
+                            <button class="btn-copy" aria-label="Copy OKF skill command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
