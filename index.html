@@ -58,6 +58,8 @@
             <nav class="site-nav" aria-label="Main Navigation">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#graph-visualization" class="nav-link">Context Graph</a>
+                <a href="#mcp-tools" class="nav-link">MCP Tools</a>
+                <a href="#agent-skill" class="nav-link">Agent Skill</a>
                 <a href="#playground" class="nav-link">Playground</a>
                 <!-- <a href="#getting-started" class="nav-link">Get Started</a> -->
             </nav>
@@ -152,6 +154,32 @@
             </div>
         </section>
 
+        <!-- Agent Setup Guide -->
+        <section class="getting-started-section" id="agent-setup">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Agent Setup</span>
+                    <h2 class="section-title">Set Up OKF with an Agent</h2>
+                    <p class="section-desc">Copy this prompt into your coding agent to install the OKF CLI and Agent Skill, then verify and report what was installed.</p>
+                </div>
+                <div class="getting-started-grid">
+                    <div class="steps-card">
+                        <h3>Agent setup prompt</h3>
+                        <pre class="step-code step-code-prompt"><code id="agent-setup-prompt">Set up OKF in this environment:
+1. Check the OS and architecture. Choose one documented CLI install method that works here: the official installer (curl -sSfL https://okfgo.dev/install.sh | sh) or build from source (git clone https://github.com/abcubed3/okf.git, then cd okf and go build -o okf main.go). Use another documented option if needed.
+2. Add the OKF Agent Skill with: npx skills add https://github.com/abcubed3/okf/skills
+3. Verify the CLI and skill are installed. Report the installation method, CLI version and path, skill name and path, and any files or configuration created. Clearly report anything that could not be installed or verified.</code></pre>
+                        <button class="btn-copy" data-copy-target="agent-setup-prompt" aria-label="Copy OKF agent setup prompt">
+                            <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span class="copy-text">Copy Prompt</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Category -->
+        <div class="features-category" id="features">
         <!-- Command Simulator Section -->
         <section class="demo-section" id="interactive-demo">
             <div class="section-container">
@@ -210,156 +238,8 @@
             </div>
         </section>
 
-        <!-- Visual Context Graph Assembly Section -->
-        <section class="graph-section" id="graph-visualization">
-            <div class="section-container">
-                <div class="grid grid-2-cols">
-                    <div class="graph-info">
-                        <span class="section-tag">Deterministic BFS Assembly</span>
-                        <h2 class="section-title">Context Assembly, Visualized</h2>
-                        <p class="section-desc">
-                            Vector databases fetch fragmented snippets out of order. OKF works differently: starting from a concept, it performs a <strong>Breadth-First Search (BFS)</strong> along explicit relative Markdown links.
-                        </p>
-                        <p class="section-desc">
-                            It pulls in adjacent nodes (like database schemas referenced by tables, or APIs writing to columns) until the target character budget is filled.
-                        </p>
-                        <div class="graph-controls">
-                            <button class="btn btn-primary" id="btn-run-bfs">Animate Context Traversal</button>
-                            <span class="bfs-status" id="bfs-status-text">Ready to traverse...</span>
-                        </div>
-                        
-                        <div class="bfs-steps" id="bfs-steps-container">
-                            <div class="bfs-step" id="step-0"><strong>Root:</strong> Starting BFS at <code>tables/orders</code>...</div>
-                            <div class="bfs-step" id="step-1"><strong>Depth 1:</strong> Following link to <code>tables/users</code> (found in body).</div>
-                            <div class="bfs-step" id="step-2"><strong>Depth 2:</strong> Following link to <code>playbooks/database_cleanup</code>.</div>
-                        </div>
-                    </div>
-
-                    <div class="graph-display-container">
-                        <div class="canvas-glow"></div>
-                        <canvas id="graph-canvas" width="500" height="400"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Interactive Concept Parser Playground -->
-        <section class="playground-section" id="playground">
-            <div class="section-container">
-                <div class="section-header">
-                    <h2 class="section-title">Playground</h2>
-                    <p class="section-desc">Edit the OKF document YAML frontmatter or body below. Watch our conformance compiler parse, check links, and display structured concept tokens in real-time.</p>
-                </div>
-
-                <div class="playground-grid">
-                    <div class="panel panel-left">
-                        <div class="panel-header">
-                            <span>Markdown Editor (OKF v0.2 Frontmatter)</span>
-                            <span class="status-pill status-success" id="parser-status">Perfect Match</span>
-                        </div>
-                        <textarea class="code-editor" id="playground-textarea" spellcheck="false">---
-okf_version: "0.2"
-type: "Metric"
-title: "Monthly Recurring Revenue (MRR)"
-description: "Total normalized monthly subscription revenue generated by active accounts."
-resource: "analytics.mrr_daily"
-tags: [finance, revenue, kpi]
-status: "stable"
-stale_after: "2027-01-01T00:00:00Z"
-
-sources:
-  - uri: "https://stripe.com/docs/billing/subscriptions"
-    title: "Stripe Subscription Lifecycle Specs"
-    author: "Billing Architecture Team"
-
-generated:
-  by: "okf-harvester/v0.2"
-  at: "2026-08-01T12:00:00Z"
-
-verified:
-  - by: "human:lead-data-architect@company.com"
-    at: "2026-08-01T12:15:00Z"
----
-
-# Monthly Recurring Revenue (MRR)
-
-MRR measures predictable subscription revenue components. It references the [MRR Calculation Query](attestations/mrr_query.md).
-</textarea>
-                    </div>
-
-                    <div class="panel panel-right">
-                        <div class="panel-header">Parsed OKF Concept Object</div>
-                        <div class="parsed-output-container">
-                            <div class="parsed-metadata">
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Concept ID:</span>
-                                    <span class="metadata-value" id="out-id">metrics/monthly_recurring_revenue</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">OKF Spec Version:</span>
-                                    <span class="metadata-value-pill" id="out-version">v0.2</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Type:</span>
-                                    <span class="metadata-value-pill" id="out-type">Metric</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Title:</span>
-                                    <span class="metadata-value" id="out-title">Monthly Recurring Revenue (MRR)</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Description:</span>
-                                    <span class="metadata-value" id="out-desc">Total normalized monthly subscription revenue generated by active accounts.</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Trust Status:</span>
-                                    <span class="metadata-value-pill status-pill status-success" id="out-status">stable</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Freshness Expiration:</span>
-                                    <span class="metadata-value" id="out-stale">2027-01-01T00:00:00Z</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Verification Tier:</span>
-                                    <span class="metadata-value" id="out-verified">human-reviewed (human:lead-data-architect@company.com)</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Resource:</span>
-                                    <span class="metadata-value" id="out-resource">analytics.mrr_daily</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Tags:</span>
-                                    <div class="tags-container" id="out-tags">
-                                        <span class="tag-pill">finance</span>
-                                        <span class="tag-pill">revenue</span>
-                                        <span class="tag-pill">kpi</span>
-                                    </div>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Sources (Provenance):</span>
-                                    <div class="links-container" id="out-sources">
-                                        <span class="link-pill">stripe.com/docs/billing/subscriptions</span>
-                                    </div>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Internal Links:</span>
-                                    <div class="links-container" id="out-links">
-                                        <span class="link-pill">attestations/mrr_query.md</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="parsed-body-header">Raw Document Body</div>
-                            <pre class="body-pre" id="out-body"># Monthly Recurring Revenue (MRR)
-
-MRR measures predictable subscription revenue components. It references the [MRR Calculation Query](attestations/mrr_query.md).</pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Key Features Grid -->
-        <section class="features-section" id="features">
+        <section class="features-section">
             <div class="section-container">
                 <div class="section-header">
                     <span class="section-tag">Robust Architecture</span>
@@ -525,72 +405,126 @@ MRR measures predictable subscription revenue components. It references the [MRR
             </div>
         </section>
 
-        <!-- Getting Started Guide -->
-        <section class="getting-started-section" id="getting-started">
+        </div>
+
+        <!-- Visual Context Graph Assembly Section -->
+        <section class="graph-section" id="graph-visualization">
+            <div class="section-container">
+                <div class="grid grid-2-cols">
+                    <div class="graph-info">
+                        <span class="section-tag">Deterministic BFS Assembly</span>
+                        <h2 class="section-title">Context Assembly, Visualized</h2>
+                        <p class="section-desc">
+                            Vector databases fetch fragmented snippets out of order. OKF works differently: starting from a concept, it performs a <strong>Breadth-First Search (BFS)</strong> along explicit relative Markdown links.
+                        </p>
+                        <p class="section-desc">
+                            It pulls in adjacent nodes (like database schemas referenced by tables, or APIs writing to columns) until the target character budget is filled.
+                        </p>
+                        <div class="graph-controls">
+                            <button class="btn btn-primary" id="btn-run-bfs">Animate Context Traversal</button>
+                            <span class="bfs-status" id="bfs-status-text">Ready to traverse...</span>
+                        </div>
+
+                        <div class="bfs-steps" id="bfs-steps-container">
+                            <div class="bfs-step" id="step-0"><strong>Root:</strong> Starting BFS at <code>tables/orders</code>...</div>
+                            <div class="bfs-step" id="step-1"><strong>Depth 1:</strong> Following link to <code>tables/users</code> (found in body).</div>
+                            <div class="bfs-step" id="step-2"><strong>Depth 2:</strong> Following link to <code>playbooks/database_cleanup</code>.</div>
+                        </div>
+                    </div>
+
+                    <div class="graph-display-container">
+                        <div class="canvas-glow"></div>
+                        <canvas id="graph-canvas" width="500" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- MCP Tools -->
+        <section class="features-section" id="mcp-tools">
             <div class="section-container">
                 <div class="section-header">
-                    <h2 class="section-title">Getting Started</h2>
-                    <p class="section-desc">Get up and running with the OKF-go tool in seconds.</p>
+                    <span class="section-tag">Model Context Protocol</span>
+                    <h2 class="section-title">OKF MCP Tools</h2>
+                    <p class="section-desc">Connect an MCP-compatible agent to the OKF server to explore concepts, assemble context, and ask grounded questions.</p>
                 </div>
 
                 <div class="getting-started-grid">
                     <div class="steps-card">
-                        <h3>1. Quick Installation</h3>
-                        <p>Run the direct shell script installer to fetch the precompiled binary for macOS, Windows or Linux:</p>
+                        <h3>Run MCP with Docker Compose</h3>
+                        <p>Run MCP over HTTP with Docker Compose. Save this as <code>compose.yaml</code> and change <code>my_bundle_location</code> to the path to your bundle:</p>
                         <div class="code-block-container">
-                            <pre><code>curl -sSfL https://okfgo.dev/install.sh | sh</code></pre>
-                            <button class="btn-copy" aria-label="Copy installation command">
-                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
-                        </div>
-                        <p class="info-note">The script auto-detects architecture (amd64, arm64) and locations (e.g. <code>/usr/local/bin</code> or <code>~/.local/bin</code>).</p>
-                    </div>
-
-                    <div class="steps-card">
-                        <h3>2. Build From Source</h3>
-                        <p>If you have Go installed (v1.26+), you can compile the binary locally:</p>
-                        <div class="code-block-container">
-                            <pre><code>git clone https://github.com/abcubed3/okf.git
-cd okf
-go build -o okf main.go
-./okf help</code></pre>
-                            <button class="btn-copy" aria-label="Copy build commands">
-                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <pre id="okf-compose-config"><code>services:
+  okf-kb:
+    image: ghcr.io/abcubed3/okf:latest
+    command: ["mcp", "--bundle", "/bundle", "--transport", "http", "--port", "8080"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./my_bundle_location:/bundle:ro</code></pre>
+                            <button class="btn-copy" data-copy-target="okf-compose-config" aria-label="Copy Docker Compose configuration">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>
                     </div>
+                </div>
 
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>list_concepts</code></h3>
+                        <p class="feature-text">List all concepts in the OKF bundle with their types and descriptions.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>search_concepts</code></h3>
+                        <p class="feature-text">Search concepts by query across IDs, titles, descriptions, or tags, or filter by type or tag.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>get_concept</code></h3>
+                        <p class="feature-text">Retrieve a specific OKF concept document by its unique ID, such as <code>tables/users</code>.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>assemble_context</code></h3>
+                        <p class="feature-text">Build a pruned, cohesive context subset of the concept graph from a concept ID by traversing related links.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>export_agent_skill</code></h3>
+                        <p class="feature-text">Compile the OKF bundle, or a filtered tag/type subset, into an AI Agent Skill (<code>SKILL.md</code>) for IDE coding agents.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3 class="feature-title"><code>ask_knowledge_base</code></h3>
+                        <p class="feature-text">Answer natural-language questions grounded strictly in OKF bundle concepts and attested computations.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Skill Installation -->
+        <section class="getting-started-section" id="agent-skill">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="section-tag">Agent Skills</span>
+                    <h2 class="section-title">Add the OKF Agent Skill</h2>
+                    <p class="section-desc">Use your coding agent to create OKF bundles and edit existing concepts and metadata.</p>
+                    <p class="section-desc">The skill helps keep bundles compliant with OKF Spec v0.2, records changes in log entries, and runs <code>okf lint</code> to validate your bundle.</p>
+                </div>
+
+                <div class="getting-started-grid">
                     <div class="steps-card">
-                        <h3>3. Connect to Antigravity, Claude Desktop</h3>
-                        <p>To use the OKF bundle directly inside Antigravity, Claude Desktop, or any other MCP client as an MCP resource, update your configuration:</p>
+                        <h3>Install from GitHub</h3>
+                        <p>Run this command from your project directory:</p>
                         <div class="code-block-container">
-                            <pre><code class="language-json">{
-  "mcpServers": {
-    "okf": {
-      "command": "/usr/local/bin/okf",
-      "args": ["mcp", "--bundle", "/path/to/my-bundle"]
-    }
-  }
-}</code></pre>
-                            <button class="btn-copy" aria-label="Copy MCP configuration">
+                            <pre><code>npx skills add https://github.com/abcubed3/okf/skills</code></pre>
+                            <button class="btn-copy" aria-label="Copy Agent Skill installation command">
                                 <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>
-                    </div>
-
-                    <div class="steps-card">
-                        <h3>4. AI Agent Skills &amp; Grounded Q&amp;A</h3>
-                        <p>Export your knowledge bundle directly to your autonomous coding agent or ask questions from your terminal:</p>
+                        <p class="info-note">Browse the <a href="https://github.com/abcubed3/okf/tree/main/skills" target="_blank" rel="noopener noreferrer">OKF Agent Skills on GitHub</a>.</p>
+                        <h3>Try it</h3>
+                        <p>Once the skill is installed, ask your coding agent to create or edit an OKF bundle with:</p>
                         <div class="code-block-container">
-                            <pre><code># Install official OKF skill into .agents/skills/okf
-okf skill install
-
-# Compile bundle into an Agent Skill
-okf skill export --bundle ./knowledge --output .agents/skills/data/SKILL.md
-
-# Grounded natural language query with Gemini
-okf ask "What is the formula for MRR?" --bundle ./knowledge</code></pre>
-                            <button class="btn-copy" aria-label="Copy AI skills commands">
+                            <pre><code>/okf update the concept with the added information</code></pre>
+                            <button class="btn-copy" aria-label="Copy OKF skill command">
                                 <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>
@@ -598,6 +532,122 @@ okf ask "What is the formula for MRR?" --bundle ./knowledge</code></pre>
                 </div>
             </div>
         </section>
+
+        <!-- Interactive Concept Parser Playground -->
+        <section class="playground-section" id="playground">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Playground</h2>
+                    <p class="section-desc">Edit the OKF document YAML frontmatter or body below. Watch our conformance compiler parse, check links, and display structured concept tokens in real-time.</p>
+                </div>
+
+                <div class="playground-grid">
+                    <div class="panel panel-left">
+                        <div class="panel-header">
+                            <span>Markdown Editor (OKF v0.2 Frontmatter)</span>
+                            <span class="status-pill status-success" id="parser-status">Perfect Match</span>
+                        </div>
+                        <textarea class="code-editor" id="playground-textarea" spellcheck="false">---
+okf_version: "0.2"
+type: "Metric"
+title: "Monthly Recurring Revenue (MRR)"
+description: "Total normalized monthly subscription revenue generated by active accounts."
+resource: "analytics.mrr_daily"
+tags: [finance, revenue, kpi]
+status: "stable"
+stale_after: "2027-01-01T00:00:00Z"
+
+sources:
+  - uri: "https://stripe.com/docs/billing/subscriptions"
+    title: "Stripe Subscription Lifecycle Specs"
+    author: "Billing Architecture Team"
+
+generated:
+  by: "okf-harvester/v0.2"
+  at: "2026-08-01T12:00:00Z"
+
+verified:
+  - by: "human:lead-data-architect@company.com"
+    at: "2026-08-01T12:15:00Z"
+---
+
+# Monthly Recurring Revenue (MRR)
+
+MRR measures predictable subscription revenue components. It references the [MRR Calculation Query](attestations/mrr_query.md).
+</textarea>
+                    </div>
+
+                    <div class="panel panel-right">
+                        <div class="panel-header">Parsed OKF Concept Object</div>
+                        <div class="parsed-output-container">
+                            <div class="parsed-metadata">
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Concept ID:</span>
+                                    <span class="metadata-value" id="out-id">metrics/monthly_recurring_revenue</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">OKF Spec Version:</span>
+                                    <span class="metadata-value-pill" id="out-version">v0.2</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Type:</span>
+                                    <span class="metadata-value-pill" id="out-type">Metric</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Title:</span>
+                                    <span class="metadata-value" id="out-title">Monthly Recurring Revenue (MRR)</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Description:</span>
+                                    <span class="metadata-value" id="out-desc">Total normalized monthly subscription revenue generated by active accounts.</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Trust Status:</span>
+                                    <span class="metadata-value-pill status-pill status-success" id="out-status">stable</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Freshness Expiration:</span>
+                                    <span class="metadata-value" id="out-stale">2027-01-01T00:00:00Z</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Verification Tier:</span>
+                                    <span class="metadata-value" id="out-verified">human-reviewed (human:lead-data-architect@company.com)</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Resource:</span>
+                                    <span class="metadata-value" id="out-resource">analytics.mrr_daily</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Tags:</span>
+                                    <div class="tags-container" id="out-tags">
+                                        <span class="tag-pill">finance</span>
+                                        <span class="tag-pill">revenue</span>
+                                        <span class="tag-pill">kpi</span>
+                                    </div>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Sources (Provenance):</span>
+                                    <div class="links-container" id="out-sources">
+                                        <span class="link-pill">stripe.com/docs/billing/subscriptions</span>
+                                    </div>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Internal Links:</span>
+                                    <div class="links-container" id="out-links">
+                                        <span class="link-pill">attestations/mrr_query.md</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="parsed-body-header">Raw Document Body</div>
+                            <pre class="body-pre" id="out-body"># Monthly Recurring Revenue (MRR)
+
+MRR measures predictable subscription revenue components. It references the [MRR Calculation Query](attestations/mrr_query.md).</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="site-footer">
