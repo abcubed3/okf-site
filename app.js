@@ -86,14 +86,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         'tab-lint': {
             command: 'okf lint ./knowledge-base',
             output: `Linting OKF bundle at: <span class="ansi-bold">/Users/developer/knowledge-base</span>...
-<span class="ansi-cyan">[INFO]</span>  OKF Spec Version: <span class="ansi-bold">v0.2</span>
-<span class="ansi-green">[PASS]</span>  OKF v0.2 Trust Signals check: 0 errors
+<span class="ansi-cyan">[INFO]</span>  OKF Spec Version: <span class="ansi-bold">v0.3</span>
+<span class="ansi-cyan">[INFO]</span>  Skipped 1 non-concept Markdown file (README.md)
+<span class="ansi-green">[PASS]</span>  OKF v0.3 Trust &amp; Governance check: 0 errors
 <span class="ansi-yellow">[WARN]</span>  playbooks/database_cleanup.md: description field is missing (recommended)
-<span class="ansi-green">[PASS]</span>  metrics/mrr.md: provenance & attestation verified
+<span class="ansi-green">[PASS]</span>  metrics/mrr.md: provenance &amp; current verification confirmed
 <span class="ansi-green">[PASS]</span>  tables/users.md: link checks passed
 
 Validation complete: <span class="ansi-green">0 errors</span>, <span class="ansi-yellow">1 warnings</span> found.
-Validation complete: OKF v0.2 bundle is perfectly valid! 🎉`
+Validation complete: OKF v0.3 bundle is perfectly valid! 🎉`
         },
         'tab-harvest': {
             command: 'okf harvest db --driver postgres --conn "postgresql://localhost:5432/my_db" --output ./bundle/tables',
@@ -555,7 +556,7 @@ Registering connectors...
 
     function parseEditorInput() {
         const content = playgroundTextarea.value;
-        const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+        const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n([\s\S]*))?$/;
         const match = content.match(frontmatterRegex);
 
         if (!match) {
@@ -566,72 +567,136 @@ Registering connectors...
         }
 
         const frontmatterText = match[1];
-        const bodyText = match[2];
+        const bodyText = match[2] || '';
 
         // Parse key-value frontmatter lines manually (lightweight YAML parser)
         const frontmatter = {};
+        const tagsList = [];
         const sourcesList = [];
-        let currentSourceUri = null;
-        const verifiedActors = [];
+        const verifiedEntries = [];
+        let currentVerifiedEntry = null;
+        let generatedAt = null;
         let inVerifiedBlock = false;
         let inSourcesBlock = false;
+        let inGeneratedBlock = false;
+        let inTagsBlock = false;
         
         const lines = frontmatterText.split(/\r?\n/);
         
         lines.forEach(line => {
             const trimmed = line.trim();
-            if (trimmed.startsWith('sources:')) {
-                inSourcesBlock = true;
+            if (!trimmed || trimmed.startsWith('#')) return;
+
+            if (trimmed.startsWith('tags:')) {
+                inTagsBlock = true;
+                inSourcesBlock = false;
                 inVerifiedBlock = false;
+                inGeneratedBlock = false;
+                currentVerifiedEntry = null;
+            } else if (trimmed.startsWith('sources:')) {
+                inSourcesBlock = true;
+                inTagsBlock = false;
+                inVerifiedBlock = false;
+                inGeneratedBlock = false;
+                currentVerifiedEntry = null;
+            } else if (trimmed.startsWith('generated:')) {
+                inGeneratedBlock = true;
+                inTagsBlock = false;
+                inSourcesBlock = false;
+                inVerifiedBlock = false;
+                currentVerifiedEntry = null;
+                const inlineAt = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
+                if (inlineAt) {
+                    generatedAt = inlineAt[1];
+                }
             } else if (trimmed.startsWith('verified:')) {
                 inVerifiedBlock = true;
+                inTagsBlock = false;
                 inSourcesBlock = false;
+                inGeneratedBlock = false;
+                currentVerifiedEntry = null;
                 // Check if inline bare mapping: verified: { by: "...", at: "..." }
                 const inlineBy = trimmed.match(/by:\s*["']?([^"',}\s]+)["']?/);
+                const inlineAt = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
                 if (inlineBy) {
-                    verifiedActors.push(inlineBy[1]);
+                    verifiedEntries.push({ by: inlineBy[1], at: inlineAt ? inlineAt[1] : null });
                 }
             } else if (line.match(/^[a-zA-Z0-9_-]+:/)) {
-                // Any other top-level key ends verified/sources blocks
+                // Any other top-level key ends nested blocks
+                inTagsBlock = false;
                 inSourcesBlock = false;
                 inVerifiedBlock = false;
+                inGeneratedBlock = false;
+                currentVerifiedEntry = null;
             }
 
-            if (inSourcesBlock && trimmed.startsWith('uri:')) {
-                let uri = trimmed.substring(4).trim().replace(/^["']|["']$/g, '');
-                sourcesList.push(uri);
+            if (inTagsBlock && trimmed.startsWith('-')) {
+                const tagItem = trimmed.replace(/^-\s*/, '').trim().replace(/^["']|["']$/g, '');
+                if (tagItem) tagsList.push(tagItem);
             }
 
-            if (inVerifiedBlock) {
-                const byMatch = trimmed.match(/(?:^-\s*by:|^by:)\s*["']?([^"',}\s]+)["']?/);
-                if (byMatch) {
-                    verifiedActors.push(byMatch[1]);
+            if (inSourcesBlock) {
+                const srcMatch = trimmed.match(/^(?:-\s*(?:\{\s*)?)?(?:resource|uri):\s*([^,}]+)$/);
+                if (srcMatch) {
+                    const uri = srcMatch[1].trim().replace(/^["']|["']$/g, '');
+                    if (uri) sourcesList.push(uri);
                 }
             }
 
+            if (inGeneratedBlock && !trimmed.startsWith('generated:')) {
+                const genAtMatch = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
+                if (genAtMatch) {
+                    generatedAt = genAtMatch[1];
+                }
+            }
+
+            if (inVerifiedBlock && !trimmed.startsWith('verified:')) {
+                if (trimmed.startsWith('-')) {
+                    currentVerifiedEntry = { by: '', at: null };
+                    verifiedEntries.push(currentVerifiedEntry);
+                } else if (!currentVerifiedEntry) {
+                    // Bare mapping form under verified:
+                    currentVerifiedEntry = { by: '', at: null };
+                    verifiedEntries.push(currentVerifiedEntry);
+                }
+                const byMatch = trimmed.match(/by:\s*["']?([^"',}\s]+)["']?/);
+                if (byMatch && currentVerifiedEntry) {
+                    currentVerifiedEntry.by = byMatch[1];
+                }
+                const atMatch = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
+                if (atMatch && currentVerifiedEntry) {
+                    currentVerifiedEntry.at = atMatch[1];
+                }
+            }
+
+            const isIndented = /^\s/.test(line);
             const separatorIdx = line.indexOf(':');
-            if (separatorIdx > 0 && !line.trim().startsWith('-')) {
+            if (!isIndented && separatorIdx > 0 && !trimmed.startsWith('-')) {
                 const key = line.substring(0, separatorIdx).trim();
                 let val = line.substring(separatorIdx + 1).trim();
                 
                 // Parse simple array brackets: tags: [x, y]
                 if (val.startsWith('[') && val.endsWith(']')) {
-                    val = val.substring(1, val.length - 1).split(',').map(item => item.trim());
+                    val = val.substring(1, val.length - 1).split(',').map(item => item.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
                 } else if (val.startsWith('"') && val.endsWith('"')) {
                     val = val.substring(1, val.length - 1);
                 } else if (val.startsWith("'") && val.endsWith("'")) {
                     val = val.substring(1, val.length - 1);
                 }
                 
-                if (!frontmatter[key]) {
+                if (!frontmatter[key] && val !== '') {
                     frontmatter[key] = val;
                 }
             }
         });
 
+        if (tagsList.length > 0 && !Array.isArray(frontmatter.tags)) {
+            frontmatter.tags = tagsList;
+        }
+
         // Validation rule checks
         if (!frontmatter.type) {
-            setParserStatus('error', 'Missing "type" metadata attribute (required)');
+            setParserStatus('error', 'Missing "type" metadata attribute (non-concept .md skipped in v0.3)');
             clearParsedUI();
             return;
         }
@@ -639,10 +704,10 @@ Registering connectors...
         if (!frontmatter.title || !frontmatter.description) {
             setParserStatus('warning', 'Missing recommended "title" or "description"');
         } else {
-            setParserStatus('success', 'Perfect Match (OKF v0.2 Compliant)');
+            setParserStatus('success', 'Perfect Match (OKF v0.3 Compliant)');
         }
 
-        // Search for relative links in body e.g. [Link Text](path/file.md)
+        // Search for relative or root-anchored links in body e.g. [Link Text](/path/file.md)
         const linkRegex = /\[([^\]]+)\]\(([^)]+\.md)\)/g;
         const links = [];
         let linkMatch;
@@ -661,18 +726,38 @@ Registering connectors...
         
         // Update UI
         if (outId) outId.innerText = inferredId;
-        if (outVersion) outVersion.innerText = frontmatter.okf_version ? `v${frontmatter.okf_version}` : 'v0.2';
+        if (outVersion) {
+            const rawVer = String(frontmatter.okf_version || '0.3').replace(/^v/i, '');
+            outVersion.innerText = `v${rawVer}`;
+        }
         if (outType) outType.innerText = frontmatter.type;
         if (outTitle) outTitle.innerText = frontmatter.title || '(Untitled)';
         if (outDesc) outDesc.innerText = frontmatter.description || '(No description)';
-        if (outStatus) outStatus.innerText = frontmatter.status || 'stable';
+        if (outStatus) {
+            const statusVal = frontmatter.status || 'stable';
+            if (statusVal === 'deprecated' && frontmatter.superseded_by) {
+                outStatus.innerText = `deprecated → ${frontmatter.superseded_by}`;
+            } else {
+                outStatus.innerText = statusVal;
+            }
+        }
         if (outStale) outStale.innerText = frontmatter.stale_after || 'None';
         if (outVerified) {
-            // Derive trust tier according to OKF Spec §5.3
+            // Derive current-only trust tier according to OKF v0.3 Spec §5.3 (verified.at >= generated.at)
+            const validEntries = verifiedEntries.filter(e => e.by && e.by.trim() !== '');
+            const genMs = generatedAt ? Date.parse(generatedAt) : NaN;
+            const currentEntries = validEntries.filter(entry => {
+                if (Number.isNaN(genMs)) return true;
+                if (!entry.at) return false;
+                const verMs = Date.parse(entry.at);
+                if (Number.isNaN(verMs)) return false;
+                return verMs >= genMs;
+            });
+
             let derivedTier = 'unverified';
-            if (verifiedActors.length > 0) {
-                const hasHuman = verifiedActors.some(actor => actor.toLowerCase().startsWith('human:'));
-                const hasMachine = verifiedActors.some(actor => !actor.toLowerCase().startsWith('human:') && actor.trim() !== '');
+            if (currentEntries.length > 0) {
+                const hasHuman = currentEntries.some(e => e.by.toLowerCase().startsWith('human:'));
+                const hasMachine = currentEntries.some(e => !e.by.toLowerCase().startsWith('human:'));
                 if (hasHuman) {
                     derivedTier = 'human-reviewed';
                 } else if (hasMachine) {
@@ -680,8 +765,10 @@ Registering connectors...
                 }
             }
             let verText = derivedTier;
-            if (verifiedActors.length > 0) {
-                verText += ` (${verifiedActors.join(', ')})`;
+            if (currentEntries.length > 0) {
+                verText += ` (${currentEntries.map(e => e.by).join(', ')})`;
+            } else if (validEntries.length > 0) {
+                verText += ' (outdated: verified.at < generated.at)';
             }
             outVerified.innerText = verText;
         }
