@@ -1,49 +1,65 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
 // ==========================================
-// OKF-go CLI Marketing Site JavaScript Logic
-// Handles Terminal, Graph BFS, Parser, and Copy
+// OKF-go CLI Homepage Interactive Logic
+// Install Switcher, CLI Preview, Integrations, BFS Graph & Playground
 // ==========================================
 
-// NOTE: Firebase init is inside the async DOMContentLoaded callback to avoid a
-// race condition: a top-level `await` makes the module async, so DOMContentLoaded
-// fires before the module resolves and the listener is registered too late.
 document.addEventListener('DOMContentLoaded', async () => {
-    // Firebase config is served by Firebase Hosting at this reserved endpoint.
-    // The API key is never hardcoded in source — it is injected server-side by Firebase.
-    // See: https://firebase.google.com/docs/hosting/reserved-urls
-    const firebaseConfig = await fetch('/__/firebase/init.json').then(r => r.json());
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    // Initialize Firebase Analytics when hosted on Firebase Hosting; degrade gracefully in local previews.
+    try {
+        const res = await fetch('/__/firebase/init.json');
+        if (res.ok) {
+            const firebaseConfig = await res.json();
+            const app = initializeApp(firebaseConfig);
+            getAnalytics(app);
+        }
+    } catch (_) {
+        // Running outside Firebase Hosting (e.g., local static server)
+    }
 
-    // 0. THEME SWITCHER LOGIC
+    // Helper: accessible keyboard arrow navigation for tablists
+    function enableTablistKeyboardNav(tabs) {
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('keydown', (e) => {
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                e.preventDefault();
+                const dir = e.key === 'ArrowRight' ? 1 : -1;
+                const nextIdx = (idx + dir + tabs.length) % tabs.length;
+                tabs[nextIdx].focus();
+                tabs[nextIdx].click();
+            });
+        });
+    }
+
+    // 0. THEME SWITCHER
     const themeToggleBtn = document.getElementById('theme-toggle');
+    let redrawCanvas = null;
+
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            if (typeof drawGraph === 'function') {
-                drawGraph();
+            if (typeof redrawCanvas === 'function') {
+                redrawCanvas();
             }
         });
     }
 
-    // 1. COPY TO CLIPBOARD GENERIC HANDLER
+    // 1. COPY TO CLIPBOARD HANDLER
     const copyButtons = document.querySelectorAll('.btn-copy');
     copyButtons.forEach(button => {
         button.addEventListener('click', () => {
-            let targetId = button.getAttribute('data-copy-target');
+            const targetId = button.getAttribute('data-copy-target');
             let targetEl = targetId ? document.getElementById(targetId) : button.previousElementSibling;
-            
+
             if (targetEl && targetEl.tagName === 'PRE') {
                 const codeEl = targetEl.querySelector('code');
                 if (codeEl) targetEl = codeEl;
             }
-
             if (!targetEl) return;
 
             navigator.clipboard.writeText(targetEl.innerText.trim())
@@ -51,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const copyText = button.querySelector('.copy-text');
                     const copyIcon = button.querySelector('.copy-icon');
                     const originalColor = button.style.color;
-                    button.style.color = '#00f2fe';
+                    button.style.color = '#38bdf8';
 
                     if (copyText) {
                         const originalText = copyText.innerText;
@@ -59,168 +75,129 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setTimeout(() => {
                             copyText.innerText = originalText;
                             button.style.color = originalColor;
-                        }, 2000);
+                        }, 1800);
                     } else if (copyIcon) {
                         const originalSvg = copyIcon.innerHTML;
-                        // Replace SVG contents with a checkmark path
                         copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
                         setTimeout(() => {
                             copyIcon.innerHTML = originalSvg;
                             button.style.color = originalColor;
-                        }, 2000);
+                        }, 1800);
                     }
                 })
                 .catch(err => {
-                    console.error('Failed to copy text: ', err);
+                    console.error('Failed to copy text:', err);
                 });
         });
     });
 
-    // 2. INTERACTIVE TERMINAL SIMULATOR
-    const terminalTabs = document.querySelectorAll('.terminal-tabs .tab-btn');
+    // 2. HERO INSTALL METHOD SWITCHER
+    const installOptions = {
+        shell: {
+            cmd: 'curl -sSfL https://okfgo.dev/install.sh | sh',
+            multiline: false,
+            hint: 'Installs a single zero-dependency binary. Windows & Linux archives are also on <a href="https://github.com/abcubed3/okf/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.'
+        },
+        go: {
+            cmd: 'go install github.com/abcubed3/okf/cmd/okf@latest',
+            multiline: false,
+            hint: 'Builds and installs <code>okf</code> directly into your <code>$GOBIN</code> (requires Go 1.24+).'
+        },
+        agent: {
+            cmd: `Install OKF in this workspace:
+1. Install the CLI via 'curl -sSfL https://okfgo.dev/install.sh | sh' (or 'go install github.com/abcubed3/okf/cmd/okf@latest').
+2. Install the workspace Agent Skill with 'okf skill install'.
+3. Verify with 'okf --help' and report the installed version and skill path.`,
+            multiline: true,
+            hint: 'Paste this prompt into Claude Code, Cursor, or Antigravity to set up both the CLI and Agent Skill automatically.'
+        }
+    };
+
+    const installTabs = Array.from(document.querySelectorAll('.install-tab'));
+    const installCommandEl = document.getElementById('install-command');
+    const installHintEl = document.getElementById('install-hint');
+    const installPanelEl = document.getElementById('install-panel');
+
+    if (installTabs.length && installCommandEl && installHintEl) {
+        enableTablistKeyboardNav(installTabs);
+        installTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const key = tab.getAttribute('data-install');
+                const opt = installOptions[key];
+                if (!opt) return;
+
+                installTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                if (installPanelEl) {
+                    installPanelEl.setAttribute('aria-labelledby', tab.id);
+                }
+
+                installCommandEl.textContent = opt.cmd;
+                installCommandEl.classList.toggle('is-multiline', opt.multiline);
+                installHintEl.innerHTML = opt.hint;
+            });
+        });
+    }
+
+    // 3. INTERACTIVE CLI SIMULATOR
+    const terminalTabs = Array.from(document.querySelectorAll('.terminal-tabs .tab-btn'));
     const terminalCommandText = document.getElementById('terminal-command-text');
     const terminalOutputText = document.getElementById('terminal-output-text');
-    
-    // Scripted commands and outputs
+    const terminalPanel = document.getElementById('terminal-content');
+
     const terminalScripts = {
-        'tab-lint': {
-            command: 'okf lint ./knowledge-base',
-            output: `Linting OKF bundle at: <span class="ansi-bold">/Users/developer/knowledge-base</span>...
-<span class="ansi-cyan">[INFO]</span>  OKF Spec Version: <span class="ansi-bold">v0.3</span>
-<span class="ansi-cyan">[INFO]</span>  Skipped 1 non-concept Markdown file (README.md)
-<span class="ansi-green">[PASS]</span>  OKF v0.3 Trust &amp; Governance check: 0 errors
-<span class="ansi-yellow">[WARN]</span>  playbooks/database_cleanup.md: description field is missing (recommended)
-<span class="ansi-green">[PASS]</span>  metrics/mrr.md: provenance &amp; current verification confirmed
-<span class="ansi-green">[PASS]</span>  tables/users.md: link checks passed
-
-Validation complete: <span class="ansi-green">0 errors</span>, <span class="ansi-yellow">1 warnings</span> found.
-Validation complete: OKF v0.3 bundle is perfectly valid! 🎉`
-        },
         'tab-harvest': {
-            command: 'okf harvest db --driver postgres --conn "postgresql://localhost:5432/my_db" --output ./bundle/tables',
-            output: `Connecting to PostgreSQL database public schema...
-Querying information schema tables...
-Found table: <span class="ansi-cyan">users</span> (4 columns)
-Found table: <span class="ansi-cyan">orders</span> (3 columns, foreign key: users.id)
-Generating OKF concepts...
-  <span class="ansi-green">[NEW]</span> bundle/tables/users.md
-  <span class="ansi-green">[NEW]</span> bundle/tables/orders.md
+            command: 'okf harvest db --driver postgres --conn "$DATABASE_URL" --output ./knowledge/tables',
+            output: `Connecting to PostgreSQL public schema...
+Inspecting tables and foreign keys...
+  <span class="ansi-green">[NEW]</span> knowledge/tables/users.md (4 columns)
+  <span class="ansi-green">[NEW]</span> knowledge/tables/orders.md (5 columns, links to users.md)
 
-<span class="ansi-bold ansi-green">Successfully harvested 2 database table concepts into "./bundle/tables"!</span>`
+<span class="ansi-bold ansi-green">Harvested 2 database table concepts into ./knowledge/tables</span>`
         },
-        'tab-assemble': {
-            command: 'okf assemble tables/orders --depth 2 --format xml',
-            output: `<span class="ansi-bold ansi-blue">&lt;context&gt;</span>
-  <span class="ansi-bold ansi-cyan">&lt;concept id="tables/orders" path="tables/orders.md" type="BigQuery Table"&gt;</span>
-    # Orders Table
-    Stores transaction details. References <span class="ansi-yellow">[Users Table](users.md)</span>.
-    
-    ## Schema
-    * transaction_id (STRING): ID
-    * user_id (STRING): References users.id
-  <span class="ansi-bold ansi-cyan">&lt;/concept&gt;</span>
-  <span class="ansi-bold ansi-cyan">&lt;concept id="tables/users" path="tables/users.md" type="BigQuery Table"&gt;</span>
-    # Users Table
-    Stores customer profiles.
-  <span class="ansi-bold ansi-cyan">&lt;/concept&gt;</span>
-<span class="ansi-bold ansi-blue">&lt;/context&gt;</span>`
-        },
-        'tab-mcp': {
-            command: 'okf mcp --bundle ./knowledge-base --transport stdio',
-            output: `<span class="ansi-bold">Starting OKF-go MCP Server over Stdio...</span>
-<span class="ansi-green">Exposed MCP Capabilities:</span>
-  - <span class="ansi-bold">Resources:</span>
-    * okf://index (List of all concepts)
-    * okf://concept/{id} (Get concept document)
-  - <span class="ansi-bold">Prompts:</span>
-    * okf_concept_context
-  - <span class="ansi-bold">Tools:</span>
-    * list_concepts
-    * search_concepts   
-    * get_concept
-    * assemble_context
-    * <span class="ansi-green">export_agent_skill</span> (Compile bundle to SKILL.md)
-    * <span class="ansi-green">ask_knowledge_base</span> (Grounded Q&A with trust signals)
+        'tab-lint': {
+            command: 'okf lint ./knowledge',
+            output: `Linting OKF bundle at <span class="ansi-bold">./knowledge</span> (OKF Spec v0.3)...
+<span class="ansi-green">[PASS]</span>  tables/users.md: schema &amp; relative links valid
+<span class="ansi-green">[PASS]</span>  tables/orders.md: human-reviewed verification current
+<span class="ansi-green">[PASS]</span>  metrics/mrr.md: provenance &amp; freshness confirmed
 
-<span class="ansi-bold ansi-cyan">Server is running. Waiting for JSON-RPC messages on stdin...</span>`
+Validation complete: <span class="ansi-green">0 errors</span>, <span class="ansi-green">0 warnings</span>.`
         },
         'tab-skill': {
-            command: 'okf skill export --bundle ./knowledge --output .agents/skills/data-warehouse/SKILL.md --name "data-warehouse"',
-            output: `Reading OKF bundle from: <span class="ansi-bold">./knowledge</span>...
-Found <span class="ansi-cyan">14</span> concepts (4 tables, 6 metrics, 2 attestations, 2 playbooks).
-Filtering concepts... (all matching domain)
-Synthesizing Agent Skill directives:
-  <span class="ansi-green">[OK]</span> Strict schema fidelity rules generated
-  <span class="ansi-green">[OK]</span> 2 sanctioned computation queries embedded (MRR, Churn)
-  <span class="ansi-green">[OK]</span> Trust signals & freshness timestamps mapped
-Writing destination file...
-  <span class="ansi-bold ansi-green">[SUCCESS]</span> Compiled OKF bundle into Agent Skill at:
-  <span class="ansi-bold">.agents/skills/data-warehouse/SKILL.md</span> 🎉
+            command: 'okf skill export --bundle ./knowledge --output .agents/skills/warehouse/SKILL.md',
+            output: `Reading OKF bundle from <span class="ansi-bold">./knowledge</span> (14 concepts)...
+  <span class="ansi-green">[OK]</span> Schema fidelity rules &amp; concept index compiled
+  <span class="ansi-green">[OK]</span> 2 certified SQL queries embedded (MRR, Churn)
+  <span class="ansi-green">[OK]</span> Trust tiers &amp; freshness dates attached
 
-<span class="ansi-cyan">AI coding agents (Antigravity, Claude, Cursor) now have verified domain context!</span>`
+<span class="ansi-bold ansi-green">Exported Agent Skill to .agents/skills/warehouse/SKILL.md</span>`
+        },
+        'tab-mcp': {
+            command: 'okf mcp --bundle ./knowledge --transport stdio',
+            output: `<span class="ansi-bold">Starting OKF MCP Server (stdio)...</span>
+<span class="ansi-green">Registered Tools:</span>
+  &bull; list_concepts / search_concepts / get_concept
+  &bull; assemble_context   (bounded BFS graph context)
+  &bull; export_agent_skill (compile SKILL.md on demand)
+  &bull; ask_knowledge_base (grounded Q&amp;A with citations)
+
+<span class="ansi-cyan">Ready for MCP client requests on stdin...</span>`
         },
         'tab-ask': {
-            command: 'okf ask "What query should I use to calculate monthly recurring revenue?" --bundle ./knowledge',
-            output: `🔍 OKF Knowledge Steward Query: <span class="ansi-bold">"What query should I use to calculate monthly recurring revenue?"</span>
-🌱 Seed Concept: <span class="ansi-cyan">attestations/mrr_query</span>
-🔗 Referenced Subgraph Nodes (3): <span class="ansi-bold">attestations/mrr_query, metrics/mrr, tables/subscriptions</span>
-📐 Sanctioned Queries Found: <span class="ansi-green">1 verified</span>
---------------------------------------------------------------------------------
-<span class="ansi-bold ansi-green">### Grounded Context Answer (Gemini 2.5 Flash):</span>
+            command: 'okf ask "How do we calculate monthly recurring revenue?" --bundle ./knowledge',
+            output: `Seed concept: <span class="ansi-cyan">metrics/mrr</span> &rarr; traversed <span class="ansi-bold">attestations/mrr_query, tables/subscriptions</span>
+------------------------------------------------------------------------
+Use the human-reviewed attestation query (<span class="ansi-cyan">finance@company.com</span>):
 
-To calculate Monthly Recurring Revenue (MRR), you must use the certified attestation query approved by <span class="ansi-cyan">finance-team@company.com</span> (<span class="ansi-green">human-reviewed</span>):
+<span class="ansi-blue">SELECT</span> DATE_TRUNC(created_at, MONTH) <span class="ansi-blue">AS</span> month, SUM(amount) <span class="ansi-blue">AS</span> mrr
+<span class="ansi-blue">FROM</span> analytics.subscriptions <span class="ansi-blue">WHERE</span> status = 'active' <span class="ansi-blue">GROUP BY</span> 1;
 
-<span class="ansi-bold">Attested Query (BigQuery / SQL-2024):</span>
-<span class="ansi-blue">\`\`\`sql</span>
-<span class="ansi-bold">SELECT</span>
-  DATE_TRUNC(created_at, MONTH) <span class="ansi-bold">AS</span> revenue_month,
-  SUM(amount) <span class="ansi-bold">AS</span> total_mrr
-<span class="ansi-bold">FROM</span> <span class="ansi-yellow">&#96;my-project.analytics.subscriptions&#96;</span>
-<span class="ansi-bold">WHERE</span> status = 'active'
-<span class="ansi-bold">GROUP BY</span> 1
-<span class="ansi-blue">\`\`\`</span>
-
-<span class="ansi-muted">Sources Cited: [metrics/mrr] (stale_after: 2027-01-01), [tables/subscriptions]</span>
---------------------------------------------------------------------------------`
-        },
-        'tab-doc': {
-            command: 'okf doc --bundle ./knowledge-base --output ./docs',
-            output: `Generating OKF documentation from <span class="ansi-bold">/Users/developer/knowledge-base</span> to <span class="ansi-bold">/Users/developer/knowledge-base/docs</span>...
-Parsing 5 concepts...
-Rendering bundle graph index...
-Writing asset files...
-  - index.html
-  - vis-network.min.js
-  - marked.min.js
-
-<span class="ansi-bold ansi-green">Documentation generated successfully! 🎉</span>`
-        },
-        'tab-lsp': {
-            command: 'okf lsp',
-            output: `Starting Language Server Protocol (LSP) Daemon...
-Listening for JSON-RPC messages on standard I/O...
-  [LSP] Client Capabilities Registered: textDocumentSyncKindFull
-  [LSP] Project Root Configured: /Users/developer/knowledge-base
-  [LSP] Diagnostic Engine initialized.
-  
-<span class="ansi-cyan">LSP Server ready. Press Ctrl+C to terminate.</span>`
-        },
-        'tab-sync': {
-            command: 'okf sync --config okf.yaml --daemon --interval 300',
-            output: `Starting OKF Sync Engine for bundle at /Users/developer/knowledge-base (Config: okf.yaml)
-Registering connectors...
-  - Notion Connector: <span class="ansi-green">ACTIVE</span>
-  - Google Drive Connector: <span class="ansi-green">ACTIVE</span>
-  - Confluence Connector: <span class="ansi-yellow">UNCONFIGURED (Skipped)</span>
-  - Jira Connector: <span class="ansi-yellow">UNCONFIGURED (Skipped)</span>
-  
-[Sync] Starting OKF Sync daemon (Interval: 300s)
-[Sync] Starting sync cycle...
-[Sync] Pushing concept <span class="ansi-bold">tables/users</span> to Notion (Parent: workspace)... <span class="ansi-green">SUCCESS</span>
-[Sync] Pushing concept <span class="ansi-bold">tables/orders</span> to Google Drive... <span class="ansi-green">SUCCESS</span>
-[Sync] Pulling updates from Notion... <span class="ansi-green">NO CHANGES</span>
-[Sync] Sync cycle complete. Last Sync state saved.
-[Sync] Waiting for next interval...`
+<span class="ansi-muted">Sources: [metrics/mrr], [attestations/mrr_query] (fresh until 2027-01-01)</span>`
         }
     };
 
@@ -228,135 +205,197 @@ Registering connectors...
 
     function runTerminalSimulation(tabId) {
         const script = terminalScripts[tabId];
-        if (!script) return;
-        
-        // Clear any running typing timeout to prevent overlapping animations
+        if (!script || !terminalCommandText || !terminalOutputText) return;
+
         if (typingTimeoutId) {
             clearTimeout(typingTimeoutId);
             typingTimeoutId = null;
         }
-        
-        terminalCommandText.innerHTML = '';
+
+        terminalCommandText.textContent = '';
         terminalOutputText.innerHTML = '';
-        
-        // Typing effect for the command
+
         let index = 0;
         const cmdStr = script.command;
-        
+
         function typeChar() {
             if (index < cmdStr.length) {
-                terminalCommandText.innerHTML += cmdStr.charAt(index);
+                terminalCommandText.textContent += cmdStr.charAt(index);
                 index++;
-                typingTimeoutId = setTimeout(typeChar, 25);
+                typingTimeoutId = setTimeout(typeChar, 16);
             } else {
-                // Command fully typed, show output after a small delay
                 typingTimeoutId = setTimeout(() => {
                     terminalOutputText.innerHTML = script.output;
                     typingTimeoutId = null;
-                }, 150);
+                }, 100);
             }
         }
-        
+
         typeChar();
     }
 
-    // Trigger initial simulation
-    runTerminalSimulation('tab-lint');
+    if (terminalTabs.length) {
+        enableTablistKeyboardNav(terminalTabs);
+        runTerminalSimulation('tab-harvest');
 
-    // Add tab click listeners
-    terminalTabs.forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            terminalTabs.forEach(t => {
-                t.classList.remove('active');
-                t.setAttribute('aria-selected', 'false');
+        terminalTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                terminalTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                if (terminalPanel) {
+                    terminalPanel.setAttribute('aria-labelledby', tab.id);
+                }
+                runTerminalSimulation(tab.id);
             });
-            e.currentTarget.classList.add('active');
-            e.currentTarget.setAttribute('aria-selected', 'true');
-            
-            runTerminalSimulation(e.currentTarget.id);
         });
-    });
+    }
 
-    // 3. INTERACTIVE BFS GRAPH ANIMATION (CANVAS)
+    // 4. INTEGRATIONS TAB SWITCHER
+    const integrationSnippets = {
+        mcp: {
+            desc: 'Add OKF to Claude Desktop, Cursor, or Antigravity to expose <code>list_concepts</code>, <code>search_concepts</code>, <code>get_concept</code>, <code>assemble_context</code>, <code>export_agent_skill</code>, and <code>ask_knowledge_base</code>.',
+            code: `{
+  "mcpServers": {
+    "okf-knowledge": {
+      "command": "okf",
+      "args": ["mcp", "--bundle", "./knowledge"]
+    }
+  }
+}`
+        },
+        skill: {
+            desc: 'Install the official OKF authoring skill into your workspace, or compile your own bundle into a domain <code>SKILL.md</code>.',
+            code: `# 1. Teach your coding agent how to author & lint OKF v0.3 files
+okf skill install
+# (Or without the CLI: npx skills add https://github.com/abcubed3/okf/skills)
+
+# 2. Compile your team's OKF bundle into a domain-specific skill
+okf skill export --bundle ./knowledge --output .agents/skills/domain/SKILL.md --name "domain"`
+        },
+        ci: {
+            desc: 'Enforce schema validity, unbroken Markdown links, and metadata freshness on every pull request with GitHub Actions.',
+            code: `name: OKF Lint
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: abcubed3/okf@v1
+        with:
+          path: "./knowledge"`
+        },
+        docker: {
+            desc: 'Host a shared HTTP MCP server for your team using the official container image.',
+            code: `services:
+  okf-mcp:
+    image: ghcr.io/abcubed3/okf:latest
+    command: ["mcp", "--bundle", "/bundle", "--transport", "http", "--port", "8080"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./knowledge:/bundle:ro`
+        }
+    };
+
+    const integrationTabs = Array.from(document.querySelectorAll('.integration-tab'));
+    const integrationDescEl = document.getElementById('integration-desc');
+    const integrationCodeEl = document.getElementById('integration-code');
+    const integrationPanelEl = document.getElementById('integration-panel');
+
+    if (integrationTabs.length && integrationDescEl && integrationCodeEl) {
+        enableTablistKeyboardNav(integrationTabs);
+        integrationTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const key = tab.getAttribute('data-integration');
+                const item = integrationSnippets[key];
+                if (!item) return;
+
+                integrationTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                if (integrationPanelEl) {
+                    integrationPanelEl.setAttribute('aria-labelledby', tab.id);
+                }
+
+                integrationDescEl.innerHTML = item.desc;
+                integrationCodeEl.textContent = item.code;
+            });
+        });
+    }
+
+    // 5. INTERACTIVE BFS GRAPH ANIMATION (CANVAS)
     const canvas = document.getElementById('graph-canvas');
     const bfsButton = document.getElementById('btn-run-bfs');
     const bfsStatus = document.getElementById('bfs-status-text');
-    const stepsContainer = document.getElementById('bfs-steps-container');
-    
+
     if (canvas && bfsButton) {
         const ctx = canvas.getContext('2d');
-        
-        // Define Node structures with relative coordinates (rx, ry)
+
         const nodes = [
-            { id: 'tables/orders', label: 'orders', type: 'Root', rx: 0.5, ry: 0.5, r: 24, color: '#00f2fe', state: 'idle' },
-            { id: 'tables/users', label: 'users', type: 'Table', rx: 0.24, ry: 0.3, r: 20, color: '#3b82f6', state: 'idle' },
-            { id: 'apis/create_user', label: 'create_user', type: 'API', rx: 0.16, ry: 0.7, r: 20, color: '#a78bfa', state: 'idle' },
-            { id: 'playbooks/database_cleanup', label: 'db_cleanup', type: 'Playbook', rx: 0.76, ry: 0.3, r: 20, color: '#f472b6', state: 'idle' },
-            { id: 'tables/transactions', label: 'transactions', type: 'Table', rx: 0.76, ry: 0.7, r: 20, color: '#3b82f6', state: 'idle' }
+            { id: 'tables/orders', label: 'orders', type: 'Seed', rx: 0.5, ry: 0.5, r: 22, color: '#00f2fe', state: 'idle' },
+            { id: 'tables/users', label: 'users', type: 'Table', rx: 0.23, ry: 0.28, r: 18, color: '#3b82f6', state: 'idle' },
+            { id: 'apis/create_user', label: 'create_user', type: 'API', rx: 0.16, ry: 0.74, r: 18, color: '#a78bfa', state: 'idle' },
+            { id: 'playbooks/db_cleanup', label: 'db_cleanup', type: 'Playbook', rx: 0.77, ry: 0.28, r: 18, color: '#f472b6', state: 'idle' },
+            { id: 'tables/transactions', label: 'transactions', type: 'Table', rx: 0.82, ry: 0.74, r: 18, color: '#3b82f6', state: 'idle' }
         ];
-
-        let hoveredNode = null;
-
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = 400; // Keep height fixed or proportional
-            drawGraph();
-        }
-        window.addEventListener('resize', resizeCanvas);
-
 
         const edges = [
             { from: 'tables/orders', to: 'tables/users', state: 'idle' },
             { from: 'tables/users', to: 'apis/create_user', state: 'idle' },
-            { from: 'tables/orders', to: 'playbooks/database_cleanup', state: 'idle' },
-            { from: 'playbooks/database_cleanup', to: 'tables/transactions', state: 'idle' }
+            { from: 'tables/orders', to: 'playbooks/db_cleanup', state: 'idle' },
+            { from: 'playbooks/db_cleanup', to: 'tables/transactions', state: 'idle' }
         ];
 
-        // Draw helper functions
+        let hoveredNode = null;
+
         function drawGraph() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-            
-            // Calculate absolute positions
+
             nodes.forEach(n => {
                 n.x = n.rx * canvas.width;
                 n.y = n.ry * canvas.height;
             });
 
-            // Draw Edges
             edges.forEach(edge => {
                 const fromNode = nodes.find(n => n.id === edge.from);
                 const toNode = nodes.find(n => n.id === edge.to);
-                
+
                 ctx.beginPath();
                 ctx.moveTo(fromNode.x, fromNode.y);
                 ctx.lineTo(toNode.x, toNode.y);
-                
+
                 if (edge.state === 'traversed') {
                     ctx.strokeStyle = isLight ? '#0284c7' : '#00f2fe';
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 2.5;
                 } else if (edge.state === 'traversing') {
                     ctx.strokeStyle = isLight ? '#7c3aed' : '#a78bfa';
                     ctx.lineWidth = 2.5;
                 } else {
-                    ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.35)' : 'rgba(255, 255, 255, 0.1)';
+                    ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.45)' : 'rgba(255, 255, 255, 0.14)';
                     ctx.lineWidth = 1.5;
                 }
                 ctx.stroke();
             });
 
-            // Draw Nodes
             nodes.forEach(node => {
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, node.r, 0, 2 * Math.PI);
-                
+
                 const isHovered = hoveredNode && hoveredNode.id === node.id;
-                
+
                 if (node.state === 'active' || isHovered) {
                     ctx.fillStyle = node.color;
                     ctx.shadowColor = node.color;
-                    ctx.shadowBlur = isLight ? 10 : 15;
+                    ctx.shadowBlur = isLight ? 8 : 14;
                 } else if (node.state === 'completed') {
                     ctx.fillStyle = isLight ? '#ffffff' : '#1e293b';
                     ctx.strokeStyle = node.color;
@@ -364,60 +403,46 @@ Registering connectors...
                     ctx.shadowBlur = 0;
                 } else {
                     ctx.fillStyle = isLight ? '#f1f5f9' : '#0f172a';
-                    ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.5)' : 'rgba(255, 255, 255, 0.2)';
+                    ctx.strokeStyle = isLight ? 'rgba(100, 116, 139, 0.5)' : 'rgba(255, 255, 255, 0.22)';
                     ctx.lineWidth = 1.5;
                     ctx.shadowBlur = 0;
                 }
-                
+
                 ctx.fill();
                 if (node.state !== 'active' && !isHovered) {
                     ctx.stroke();
                 }
-                ctx.shadowBlur = 0; // Reset shadow
+                ctx.shadowBlur = 0;
 
-                // Draw Text
-                ctx.fillStyle = (node.state === 'completed' && isLight) ? '#0f172a' : '#f8fafc';
-                ctx.font = 'bold 11px JetBrains Mono';
+                ctx.fillStyle = (node.state === 'active' || isHovered)
+                    ? '#060913'
+                    : (isLight ? '#0f172a' : '#f8fafc');
+                ctx.font = '600 11px JetBrains Mono';
                 ctx.textAlign = 'center';
                 ctx.fillText(node.label, node.x, node.y + 4);
-                
-                // Draw type label above circle
-                ctx.fillStyle = '#64748b';
-                ctx.font = '9px Outfit';
+
+                ctx.fillStyle = isLight ? '#475569' : '#94a3b8';
+                ctx.font = '600 9px Outfit';
                 ctx.fillText(node.type.toUpperCase(), node.x, node.y - node.r - 6);
             });
-
-            // Draw Tooltip
-            if (hoveredNode) {
-                const tooltipText = hoveredNode.id;
-                ctx.font = '12px JetBrains Mono';
-                const metrics = ctx.measureText(tooltipText);
-                const padding = 8;
-                const tooltipWidth = metrics.width + padding * 2;
-                const tooltipHeight = 24;
-                const tx = hoveredNode.x - tooltipWidth / 2;
-                const ty = hoveredNode.y + hoveredNode.r + 12;
-
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-                ctx.strokeStyle = hoveredNode.color;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.roundRect(tx, ty, tooltipWidth, tooltipHeight, 4);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = '#fff';
-                ctx.textAlign = 'center';
-                ctx.fillText(tooltipText, hoveredNode.x, ty + 16);
-            }
         }
 
-        // Interactivity
+        redrawCanvas = drawGraph;
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight || 270;
+            drawGraph();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-            
+
             let found = null;
             for (const node of nodes) {
                 const dx = mouseX - node.x;
@@ -427,7 +452,7 @@ Registering connectors...
                     break;
                 }
             }
-            
+
             if (hoveredNode !== found) {
                 hoveredNode = found;
                 canvas.style.cursor = found ? 'pointer' : 'default';
@@ -435,42 +460,44 @@ Registering connectors...
             }
         });
 
-        // Initialize canvas sizing
         resizeCanvas();
 
-
-        // BFS Animation steps
         let animationRunning = false;
+
+        function setStepState(stepIdx, className) {
+            const stepEl = document.getElementById(`step-${stepIdx}`);
+            if (stepEl) {
+                stepEl.classList.remove('active', 'completed');
+                if (className) stepEl.classList.add(className);
+            }
+        }
 
         bfsButton.addEventListener('click', () => {
             if (animationRunning) return;
             animationRunning = true;
             bfsButton.disabled = true;
-            bfsButton.innerText = 'Traversing...';
-            
-            // Reset all states
-            nodes.forEach(n => n.state = 'idle');
-            edges.forEach(e => e.state = 'idle');
-            
+            bfsButton.textContent = 'Traversing...';
+
+            nodes.forEach(n => { n.state = 'idle'; });
+            edges.forEach(e => { e.state = 'idle'; });
+            [0, 1, 2].forEach(i => setStepState(i, ''));
+
             const steps = [
-                // Step 0: Initialize Root
                 () => {
                     nodes[0].state = 'active';
-                    bfsStatus.innerText = 'Root selected...';
-                    setStepVisible(0, 'active');
+                    if (bfsStatus) bfsStatus.textContent = 'Seed selected: tables/orders';
+                    setStepState(0, 'active');
                 },
-                // Step 1: Traverse from Root to Depth 1 (users, db_cleanup)
                 () => {
                     nodes[0].state = 'completed';
                     edges[0].state = 'traversing';
                     edges[2].state = 'traversing';
                     nodes[1].state = 'active';
                     nodes[3].state = 'active';
-                    bfsStatus.innerText = 'Depth 1 traversed...';
-                    setStepVisible(0, 'completed');
-                    setStepVisible(1, 'active');
+                    if (bfsStatus) bfsStatus.textContent = 'Following depth-1 Markdown links...';
+                    setStepState(0, 'completed');
+                    setStepState(1, 'active');
                 },
-                // Step 2: Traverse from Depth 1 to Depth 2 (create_user, transactions)
                 () => {
                     nodes[1].state = 'completed';
                     nodes[3].state = 'completed';
@@ -480,32 +507,25 @@ Registering connectors...
                     edges[3].state = 'traversing';
                     nodes[2].state = 'active';
                     nodes[4].state = 'active';
-                    bfsStatus.innerText = 'Depth 2 traversed...';
-                    setStepVisible(1, 'completed');
-                    setStepVisible(2, 'active');
+                    if (bfsStatus) bfsStatus.textContent = 'Following depth-2 Markdown links...';
+                    setStepState(1, 'completed');
+                    setStepState(2, 'active');
                 },
-                // Step 3: End traversal, all resolved
                 () => {
                     nodes[2].state = 'completed';
                     nodes[4].state = 'completed';
                     edges[1].state = 'traversed';
                     edges[3].state = 'traversed';
-                    bfsStatus.innerText = 'Context Compiled! (12,430 chars)';
-                    setStepVisible(2, 'completed');
-                    
-                    // Reset button
+                    if (bfsStatus) bfsStatus.textContent = 'Assembled 5 linked concepts (12,430 chars) in 38µs.';
+                    setStepState(2, 'completed');
+
                     setTimeout(() => {
                         bfsButton.disabled = false;
-                        bfsButton.innerText = 'Animate Context Traversal';
+                        bfsButton.textContent = 'Animate Traversal';
                         animationRunning = false;
-                    }, 1500);
+                    }, 900);
                 }
             ];
-
-            // Reset step displays
-            document.querySelectorAll('.bfs-step').forEach(el => {
-                el.classList.remove('active', 'completed');
-            });
 
             let currentStep = 0;
             function runNext() {
@@ -513,24 +533,14 @@ Registering connectors...
                     steps[currentStep]();
                     drawGraph();
                     currentStep++;
-                    setTimeout(runNext, 1200);
+                    setTimeout(runNext, 950);
                 }
             }
-
             runNext();
         });
-
-        function setStepVisible(stepIdx, className) {
-            const stepEl = document.getElementById(`step-${stepIdx}`);
-            if (stepEl) {
-                stepEl.classList.remove('active', 'completed');
-                stepEl.classList.add(className);
-                stepEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
     }
 
-    // 4. LIVE CONCEPT PARSER PLAYGROUND
+    // 6. LIVE CONCEPT PARSER PLAYGROUND
     const playgroundTextarea = document.getElementById('playground-textarea');
     const parserStatus = document.getElementById('parser-status');
     const outId = document.getElementById('out-id');
@@ -547,11 +557,20 @@ Registering connectors...
     const outLinks = document.getElementById('out-links');
     const outBody = document.getElementById('out-body');
 
-    if (playgroundTextarea) {
-        playgroundTextarea.addEventListener('input', parseEditorInput);
-        
-        // Initial parse
-        parseEditorInput();
+    function setParserStatus(type, message) {
+        if (!parserStatus) return;
+        parserStatus.className = 'status-pill';
+        parserStatus.classList.add(`status-${type}`);
+        parserStatus.textContent = message;
+    }
+
+    function clearParsedUI() {
+        [outId, outVersion, outType, outTitle, outDesc, outStatus, outStale, outVerified, outResource].forEach(el => {
+            if (el) el.textContent = '—';
+        });
+        [outTags, outSources, outLinks].forEach(el => {
+            if (el) el.innerHTML = '';
+        });
     }
 
     function parseEditorInput() {
@@ -560,16 +579,15 @@ Registering connectors...
         const match = content.match(frontmatterRegex);
 
         if (!match) {
-            setParserStatus('error', 'Invalid Frontmatter layout (missing ---\n...---)');
+            setParserStatus('error', 'Missing --- frontmatter ---');
             clearParsedUI();
-            outBody.innerText = content;
+            if (outBody) outBody.textContent = content;
             return;
         }
 
         const frontmatterText = match[1];
         const bodyText = match[2] || '';
 
-        // Parse key-value frontmatter lines manually (lightweight YAML parser)
         const frontmatter = {};
         const tagsList = [];
         const sourcesList = [];
@@ -580,53 +598,36 @@ Registering connectors...
         let inSourcesBlock = false;
         let inGeneratedBlock = false;
         let inTagsBlock = false;
-        
-        const lines = frontmatterText.split(/\r?\n/);
-        
-        lines.forEach(line => {
+
+        frontmatterText.split(/\r?\n/).forEach(line => {
             const trimmed = line.trim();
             if (!trimmed || trimmed.startsWith('#')) return;
 
             if (trimmed.startsWith('tags:')) {
                 inTagsBlock = true;
-                inSourcesBlock = false;
-                inVerifiedBlock = false;
-                inGeneratedBlock = false;
+                inSourcesBlock = inVerifiedBlock = inGeneratedBlock = false;
                 currentVerifiedEntry = null;
             } else if (trimmed.startsWith('sources:')) {
                 inSourcesBlock = true;
-                inTagsBlock = false;
-                inVerifiedBlock = false;
-                inGeneratedBlock = false;
+                inTagsBlock = inVerifiedBlock = inGeneratedBlock = false;
                 currentVerifiedEntry = null;
             } else if (trimmed.startsWith('generated:')) {
                 inGeneratedBlock = true;
-                inTagsBlock = false;
-                inSourcesBlock = false;
-                inVerifiedBlock = false;
+                inTagsBlock = inSourcesBlock = inVerifiedBlock = false;
                 currentVerifiedEntry = null;
                 const inlineAt = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
-                if (inlineAt) {
-                    generatedAt = inlineAt[1];
-                }
+                if (inlineAt) generatedAt = inlineAt[1];
             } else if (trimmed.startsWith('verified:')) {
                 inVerifiedBlock = true;
-                inTagsBlock = false;
-                inSourcesBlock = false;
-                inGeneratedBlock = false;
+                inTagsBlock = inSourcesBlock = inGeneratedBlock = false;
                 currentVerifiedEntry = null;
-                // Check if inline bare mapping: verified: { by: "...", at: "..." }
                 const inlineBy = trimmed.match(/by:\s*["']?([^"',}\s]+)["']?/);
                 const inlineAt = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
                 if (inlineBy) {
                     verifiedEntries.push({ by: inlineBy[1], at: inlineAt ? inlineAt[1] : null });
                 }
             } else if (line.match(/^[a-zA-Z0-9_-]+:/)) {
-                // Any other top-level key ends nested blocks
-                inTagsBlock = false;
-                inSourcesBlock = false;
-                inVerifiedBlock = false;
-                inGeneratedBlock = false;
+                inTagsBlock = inSourcesBlock = inVerifiedBlock = inGeneratedBlock = false;
                 currentVerifiedEntry = null;
             }
 
@@ -645,9 +646,7 @@ Registering connectors...
 
             if (inGeneratedBlock && !trimmed.startsWith('generated:')) {
                 const genAtMatch = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
-                if (genAtMatch) {
-                    generatedAt = genAtMatch[1];
-                }
+                if (genAtMatch) generatedAt = genAtMatch[1];
             }
 
             if (inVerifiedBlock && !trimmed.startsWith('verified:')) {
@@ -655,18 +654,13 @@ Registering connectors...
                     currentVerifiedEntry = { by: '', at: null };
                     verifiedEntries.push(currentVerifiedEntry);
                 } else if (!currentVerifiedEntry) {
-                    // Bare mapping form under verified:
                     currentVerifiedEntry = { by: '', at: null };
                     verifiedEntries.push(currentVerifiedEntry);
                 }
                 const byMatch = trimmed.match(/by:\s*["']?([^"',}\s]+)["']?/);
-                if (byMatch && currentVerifiedEntry) {
-                    currentVerifiedEntry.by = byMatch[1];
-                }
+                if (byMatch && currentVerifiedEntry) currentVerifiedEntry.by = byMatch[1];
                 const atMatch = trimmed.match(/at:\s*["']?([^"',}\s]+)["']?/);
-                if (atMatch && currentVerifiedEntry) {
-                    currentVerifiedEntry.at = atMatch[1];
-                }
+                if (atMatch && currentVerifiedEntry) currentVerifiedEntry.at = atMatch[1];
             }
 
             const isIndented = /^\s/.test(line);
@@ -674,16 +668,16 @@ Registering connectors...
             if (!isIndented && separatorIdx > 0 && !trimmed.startsWith('-')) {
                 const key = line.substring(0, separatorIdx).trim();
                 let val = line.substring(separatorIdx + 1).trim();
-                
-                // Parse simple array brackets: tags: [x, y]
+
                 if (val.startsWith('[') && val.endsWith(']')) {
-                    val = val.substring(1, val.length - 1).split(',').map(item => item.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-                } else if (val.startsWith('"') && val.endsWith('"')) {
-                    val = val.substring(1, val.length - 1);
-                } else if (val.startsWith("'") && val.endsWith("'")) {
+                    val = val.substring(1, val.length - 1)
+                        .split(',')
+                        .map(item => item.trim().replace(/^["']|["']$/g, ''))
+                        .filter(Boolean);
+                } else if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
                     val = val.substring(1, val.length - 1);
                 }
-                
+
                 if (!frontmatter[key] && val !== '') {
                     frontmatter[key] = val;
                 }
@@ -694,20 +688,19 @@ Registering connectors...
             frontmatter.tags = tagsList;
         }
 
-        // Validation rule checks
         if (!frontmatter.type) {
-            setParserStatus('error', 'Missing "type" metadata attribute (non-concept .md skipped in v0.3)');
+            setParserStatus('error', 'Missing "type" (skipped in v0.3)');
             clearParsedUI();
+            if (outBody) outBody.textContent = bodyText;
             return;
         }
 
         if (!frontmatter.title || !frontmatter.description) {
-            setParserStatus('warning', 'Missing recommended "title" or "description"');
+            setParserStatus('warning', 'Missing recommended title/description');
         } else {
-            setParserStatus('success', 'Perfect Match (OKF v0.3 Compliant)');
+            setParserStatus('success', 'Valid OKF v0.3');
         }
 
-        // Search for relative or root-anchored links in body e.g. [Link Text](/path/file.md)
         const linkRegex = /\[([^\]]+)\]\(([^)]+\.md)\)/g;
         const links = [];
         let linkMatch;
@@ -715,147 +708,110 @@ Registering connectors...
             links.push(linkMatch[2]);
         }
 
-        // Infer concept ID from title/type
-        let inferredId = 'concept_document';
+        let inferredId = 'concepts/untitled';
         if (frontmatter.title) {
-            const folder = frontmatter.type.toLowerCase().includes('table') ? 'tables' : 
-                           frontmatter.type.toLowerCase().includes('metric') ? 'metrics' :
-                           frontmatter.type.toLowerCase().includes('api') ? 'apis' : 'concepts';
-            inferredId = `${folder}/${frontmatter.title.toLowerCase().replace(/\s+/g, '_').replace(/_table$/, '')}`;
+            const lowerType = frontmatter.type.toLowerCase();
+            const folder = lowerType.includes('table') ? 'tables'
+                : lowerType.includes('metric') ? 'metrics'
+                : lowerType.includes('api') ? 'apis'
+                : 'concepts';
+            const slug = frontmatter.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            inferredId = `${folder}/${slug}`;
         }
-        
-        // Update UI
-        if (outId) outId.innerText = inferredId;
+
+        if (outId) outId.textContent = inferredId;
         if (outVersion) {
             const rawVer = String(frontmatter.okf_version || '0.3').replace(/^v/i, '');
-            outVersion.innerText = `v${rawVer}`;
+            outVersion.textContent = `v${rawVer}`;
         }
-        if (outType) outType.innerText = frontmatter.type;
-        if (outTitle) outTitle.innerText = frontmatter.title || '(Untitled)';
-        if (outDesc) outDesc.innerText = frontmatter.description || '(No description)';
+        if (outType) outType.textContent = frontmatter.type;
+        if (outTitle) outTitle.textContent = frontmatter.title || '(Untitled)';
+        if (outDesc) outDesc.textContent = frontmatter.description || '(No description)';
         if (outStatus) {
             const statusVal = frontmatter.status || 'stable';
-            if (statusVal === 'deprecated' && frontmatter.superseded_by) {
-                outStatus.innerText = `deprecated → ${frontmatter.superseded_by}`;
-            } else {
-                outStatus.innerText = statusVal;
-            }
+            outStatus.textContent = (statusVal === 'deprecated' && frontmatter.superseded_by)
+                ? `deprecated → ${frontmatter.superseded_by}`
+                : statusVal;
         }
-        if (outStale) outStale.innerText = frontmatter.stale_after || 'None';
+        if (outStale) outStale.textContent = frontmatter.stale_after || 'None';
+
         if (outVerified) {
-            // Derive current-only trust tier according to OKF v0.3 Spec §5.3 (verified.at >= generated.at)
             const validEntries = verifiedEntries.filter(e => e.by && e.by.trim() !== '');
             const genMs = generatedAt ? Date.parse(generatedAt) : NaN;
             const currentEntries = validEntries.filter(entry => {
                 if (Number.isNaN(genMs)) return true;
                 if (!entry.at) return false;
                 const verMs = Date.parse(entry.at);
-                if (Number.isNaN(verMs)) return false;
-                return verMs >= genMs;
+                return !Number.isNaN(verMs) && verMs >= genMs;
             });
 
             let derivedTier = 'unverified';
             if (currentEntries.length > 0) {
                 const hasHuman = currentEntries.some(e => e.by.toLowerCase().startsWith('human:'));
-                const hasMachine = currentEntries.some(e => !e.by.toLowerCase().startsWith('human:'));
-                if (hasHuman) {
-                    derivedTier = 'human-reviewed';
-                } else if (hasMachine) {
-                    derivedTier = 'machine-confirmed';
-                }
+                derivedTier = hasHuman ? 'human-reviewed' : 'machine-confirmed';
             }
+
             let verText = derivedTier;
             if (currentEntries.length > 0) {
                 verText += ` (${currentEntries.map(e => e.by).join(', ')})`;
             } else if (validEntries.length > 0) {
                 verText += ' (outdated: verified.at < generated.at)';
             }
-            outVerified.innerText = verText;
+            outVerified.textContent = verText;
         }
-        if (outResource) outResource.innerText = frontmatter.resource || 'None';
-        
-        // Display tags
+
+        if (outResource) outResource.textContent = frontmatter.resource || 'None';
+
         if (outTags) {
             outTags.innerHTML = '';
-            if (Array.isArray(frontmatter.tags)) {
-                frontmatter.tags.forEach(tag => {
+            const tags = Array.isArray(frontmatter.tags)
+                ? frontmatter.tags
+                : (frontmatter.tags ? [frontmatter.tags] : []);
+            if (tags.length > 0) {
+                tags.forEach(tag => {
                     const pill = document.createElement('span');
                     pill.className = 'tag-pill';
-                    pill.innerText = tag;
+                    pill.textContent = tag;
                     outTags.appendChild(pill);
                 });
-            } else if (frontmatter.tags) {
-                const pill = document.createElement('span');
-                pill.className = 'tag-pill';
-                pill.innerText = frontmatter.tags;
-                outTags.appendChild(pill);
             } else {
                 outTags.innerHTML = '<span class="text-muted">None</span>';
             }
         }
 
-        // Display Sources (Provenance)
         if (outSources) {
             outSources.innerHTML = '';
             if (sourcesList.length > 0) {
                 sourcesList.forEach(src => {
                     const pill = document.createElement('span');
                     pill.className = 'link-pill';
-                    // Shorten displayed URL if needed
-                    let displayUrl = src.replace(/^https?:\/\//, '');
-                    pill.innerText = displayUrl;
+                    pill.textContent = src.replace(/^https?:\/\//, '');
                     outSources.appendChild(pill);
                 });
             } else {
-                outSources.innerHTML = '<span class="text-muted">No external sources linked</span>';
+                outSources.innerHTML = '<span class="text-muted">None</span>';
             }
         }
 
-        // Display links
         if (outLinks) {
             outLinks.innerHTML = '';
             if (links.length > 0) {
                 links.forEach(link => {
                     const pill = document.createElement('span');
                     pill.className = 'link-pill';
-                    pill.innerText = link;
+                    pill.textContent = link;
                     outLinks.appendChild(pill);
                 });
             } else {
-                outLinks.innerHTML = '<span class="text-muted">No links detected</span>';
+                outLinks.innerHTML = '<span class="text-muted">None</span>';
             }
         }
 
-        if (outBody) outBody.innerText = bodyText;
+        if (outBody) outBody.textContent = bodyText.trimStart();
     }
 
-    function setParserStatus(type, message) {
-        if (!parserStatus) return;
-        parserStatus.className = 'status-pill';
-        if (type === 'success') {
-            parserStatus.classList.add('status-success');
-            parserStatus.innerText = message;
-        } else if (type === 'warning') {
-            parserStatus.classList.add('status-warning');
-            parserStatus.innerText = message;
-        } else if (type === 'error') {
-            parserStatus.classList.add('status-error');
-            parserStatus.innerText = message;
-        }
-    }
-
-    function clearParsedUI() {
-        if (outId) outId.innerText = '—';
-        if (outVersion) outVersion.innerText = '—';
-        if (outType) outType.innerText = '—';
-        if (outTitle) outTitle.innerText = '—';
-        if (outDesc) outDesc.innerText = '—';
-        if (outStatus) outStatus.innerText = '—';
-        if (outStale) outStale.innerText = '—';
-        if (outVerified) outVerified.innerText = '—';
-        if (outResource) outResource.innerText = '—';
-        if (outTags) outTags.innerHTML = '';
-        if (outSources) outSources.innerHTML = '';
-        if (outLinks) outLinks.innerHTML = '';
+    if (playgroundTextarea) {
+        playgroundTextarea.addEventListener('input', parseEditorInput);
+        parseEditorInput();
     }
 });

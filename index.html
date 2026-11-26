@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OKF-go | Open Knowledge Format Tool Suite written in Go</title>
+    <title>OKF-go | Verified Markdown Knowledge for AI Agents</title>
     <meta name="description"
-        content="A lightweight Open Knowledge Format (OKF) tool suite to bridge the gap between structured enterprise metadata and LLM/AI Agent context via graph-based BFS link traversal and Model Context Protocol.">
+        content="Turn databases, APIs, and docs into verified Markdown knowledge graphs for AI agents via MCP and Agent Skills. Fast, single-binary Go CLI for the Open Knowledge Format (OKF v0.3).">
 
     <!-- Open Graph / SEO Tags -->
-    <meta property="og:title" content="OKF-go | Open Knowledge Format Tool Suite">
-    <meta property="og:description" content="Stop feeding raw database dumps to LLMs. Deterministic metadata assembly using graph-based BFS link traversal.">
+    <meta property="og:title" content="OKF-go | Verified Markdown Knowledge for AI Agents">
+    <meta property="og:description" content="Turn databases, APIs, and docs into Git-native Markdown context for AI agents, MCP, and SKILL.md.">
     <meta property="og:image" content="https://okfgo.dev/okf_concept_visual.jpg">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
@@ -19,9 +19,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
-    
+
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -34,7 +34,7 @@
 
     <!-- Inline Theme Script to Prevent FOUC -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
                 document.documentElement.setAttribute('data-theme', 'light');
@@ -44,27 +44,28 @@
         })();
     </script>
 </head>
+
 <body>
-    <!-- Background glow shapes for developer aesthetic -->
     <div class="glow-sphere glow-sphere-1" aria-hidden="true"></div>
     <div class="glow-sphere glow-sphere-2" aria-hidden="true"></div>
 
     <header class="site-header">
         <div class="header-container">
             <a href="#" class="logo-group" aria-label="OKF-go Home">
-                <img src="favicon.svg" alt="OKF-go Logo" class="header-logo-icon" width="36" height="36">
+                <img src="favicon.svg" alt="OKF-go Logo" class="header-logo-icon" width="32" height="32">
                 <span class="logo-text">OKFgo</span>
             </a>
+
             <nav class="site-nav" aria-label="Main Navigation">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#graph-visualization" class="nav-link">Context Graph</a>
-                <a href="#mcp-tools" class="nav-link">MCP Tools</a>
-                <a href="#agent-skill" class="nav-link">Agent Skill</a>
+                <a href="#quickstart" class="nav-link">Quickstart</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#cli" class="nav-link">CLI</a>
+                <a href="#integrations" class="nav-link">Integrations</a>
                 <a href="#playground" class="nav-link">Playground</a>
-                <!-- <a href="#getting-started" class="nav-link">Get Started</a> -->
             </nav>
+
             <div class="header-actions">
-                <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme">
+                <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Toggle light or dark theme" title="Toggle light or dark theme">
                     <svg class="sun-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -84,7 +85,7 @@
                     <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 3.12.9.01.64.01 1.11.01 1.25 0 .21-.15.47-.55.38A8.014 8.014 0 0 1 0 8c0-4.42 3.58-8 8-8z"></path></svg>
                     <span>GitHub</span>
                 </a>
-                <a href="#getting-started" class="btn btn-primary header-cta" id="header-cta-install">Get Started</a>
+                <a href="#quickstart" class="btn btn-primary header-cta" id="header-cta-install">Get Started</a>
             </div>
         </div>
     </header>
@@ -93,439 +94,295 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-container">
-                <span class="hero-tag">✨ Latest Release • AI Agent Skills &amp; Grounded Q&amp;A • OKF Spec v0.3</span>
-                <h1 class="hero-title">Bridging the Gap Between AI Agents, Everyday Context and Enterprise Metadata</h1>
+                <a href="https://github.com/open-knowledge-format/open-knowledge-format" target="_blank" rel="noopener noreferrer" class="hero-tag">
+                    Open Knowledge Format v0.3 &bull; Single-Binary Go CLI
+                </a>
+                <h1 class="hero-title">Turn schemas and docs into verified context for AI agents.</h1>
                 <p class="hero-subtitle">
-                    Vector search hallucinated your database schema again? 
-                    <br/>
-                    <strong>OKF</strong> uses deterministic Breadth-First Search (BFS) to feed AI agents exact, related metadata so they write perfect queries every time. 
-                    <br>
-                    Compile portable <strong>Agent Skills</strong> for Antigravity, Claude, and Cursor with <code>okf skill</code>, query your knowledge base using grounded AI via <code>okf ask</code>, and verify trust &amp; governance signals under <strong>OKF Spec v0.3</strong>.
+                    Keep your tables, APIs, metrics, and runbooks in plain, Git-native Markdown.
+                    Harvest existing metadata, validate links and freshness, and serve exact context via <strong>MCP</strong> or <code>SKILL.md</code>—no vector DB required.
                 </p>
-                
-                <div class="install-installer-bar">
-                    <code class="install-cmd" id="install-command">curl -sSfL https://okfgo.dev/install.sh | sh</code>
-                    <button class="btn-copy" id="btn-copy-install" data-copy-target="install-command" aria-label="Copy installation command">
-                        <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        <span class="copy-text">Copy</span>
-                    </button>
+
+                <!-- Multi-method Install Box -->
+                <div class="install-box" id="install-box">
+                    <div class="install-tabs" role="tablist" aria-label="Installation method">
+                        <button class="install-tab active" type="button" role="tab" aria-selected="true" aria-controls="install-panel" id="install-tab-shell" data-install="shell">
+                            macOS / Linux
+                        </button>
+                        <button class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="install-panel" id="install-tab-go" data-install="go">
+                            Go Install
+                        </button>
+                        <button class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="install-panel" id="install-tab-agent" data-install="agent">
+                            Ask Your Agent
+                        </button>
+                    </div>
+                    <div class="install-installer-bar" id="install-panel" role="tabpanel" aria-labelledby="install-tab-shell">
+                        <code class="install-cmd" id="install-command">curl -sSfL https://okfgo.dev/install.sh | sh</code>
+                        <button class="btn-copy" id="btn-copy-install" type="button" data-copy-target="install-command" aria-label="Copy installation command">
+                            <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+                    <p class="install-hint" id="install-hint">
+                        Installs a single zero-dependency binary. Windows &amp; Linux archives are also on <a href="https://github.com/abcubed3/okf/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.
+                    </p>
                 </div>
 
                 <div class="hero-ctas">
-                    <a href="#interactive-demo" class="btn btn-primary btn-large" id="hero-cta-demo">Explore CLI Commands</a>
-                    <a href="#playground" class="btn btn-secondary btn-large" id="hero-cta-playground">Try the Playground</a>
+                    <a href="#quickstart" class="btn btn-primary btn-large" id="hero-cta-quickstart">60-Second Quickstart</a>
+                    <a href="#playground" class="btn btn-secondary btn-large" id="hero-cta-playground">Try in Browser</a>
                 </div>
             </div>
         </section>
 
-        <!-- Quick Start Section -->
-        <section class="quick-start-section" id="getting-started">
+        <!-- 3-Step Quickstart Section -->
+        <section class="quick-start-section" id="quickstart">
             <div class="section-container">
                 <div class="section-header">
-                    <h2 class="section-title">4-Step Quick Start</h2>
-                    <p class="section-desc">You are 60 seconds away from giving AI agents deterministic access to your verified enterprise metadata.</p>
+                    <span class="section-tag">Quickstart</span>
+                    <h2 class="section-title">Adopt in 3 commands</h2>
+                    <p class="section-desc">Start right now in any Git repository—or point OKF at an existing database or OpenAPI spec.</p>
                 </div>
+
                 <div class="quick-start-grid">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <h3 class="step-title">Install</h3>
-                        <p class="step-desc">Download the CLI.</p>
-                        <code class="step-code">curl -sSfL okfgo.dev/install.sh | sh</code>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <h3 class="step-title">Harvest</h3>
-                        <p class="step-desc">Extract your database schema into OKF.</p>
-                        <code class="step-code">okf harvest db --driver postgres</code>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <h3 class="step-title">Skill &amp; Ask</h3>
-                        <p class="step-desc">Export Agent Skills or query with grounded AI.</p>
-                        <code class="step-code">okf skill export &amp;&amp; okf ask "MRR formula"</code>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <h3 class="step-title">Serve</h3>
-                        <p class="step-desc">Expose context via Model Context Protocol.</p>
-                        <code class="step-code">okf mcp --transport stdio</code>
-                    </div>
+                    <article class="step-card">
+                        <div class="step-badge">1</div>
+                        <div class="step-header">
+                            <h3 class="step-title">Harvest or author</h3>
+                            <p class="step-desc">Bootstrap linked Markdown concepts from any repo, schema, or spec.</p>
+                        </div>
+                        <div class="code-block-container">
+                            <pre><code id="qs-step-1">okf harvest git --output ./knowledge</code></pre>
+                            <button class="btn-copy" type="button" data-copy-target="qs-step-1" aria-label="Copy harvest command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                        <p class="step-footnote">Or harvest <code>db</code> (Postgres, MySQL, BigQuery, Spanner), <code>openapi</code>, <code>proto</code> &amp; <code>web</code>.</p>
+                    </article>
+
+                    <article class="step-card">
+                        <div class="step-badge">2</div>
+                        <div class="step-header">
+                            <h3 class="step-title">Validate links &amp; trust</h3>
+                            <p class="step-desc">Catch broken links, missing metadata, and stale concepts.</p>
+                        </div>
+                        <div class="code-block-container">
+                            <pre><code id="qs-step-2">okf lint ./knowledge</code></pre>
+                            <button class="btn-copy" type="button" data-copy-target="qs-step-2" aria-label="Copy lint command">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                        <p class="step-footnote">Checks OKF v0.3 schemas, provenance, and relative Markdown links.</p>
+                    </article>
+
+                    <article class="step-card">
+                        <div class="step-badge">3</div>
+                        <div class="step-header">
+                            <h3 class="step-title">Give it to AI agents</h3>
+                            <p class="step-desc">Install the workspace skill and start the local MCP server.</p>
+                        </div>
+                        <div class="code-block-container">
+                            <pre><code id="qs-step-3">okf skill install &amp;&amp; okf mcp --bundle ./knowledge</code></pre>
+                            <button class="btn-copy" type="button" data-copy-target="qs-step-3" aria-label="Copy skill and MCP commands">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                        <p class="step-footnote">Works out of the box with Claude Code, Cursor, and Antigravity.</p>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <!-- Agent Setup Guide -->
-        <section class="getting-started-section" id="agent-setup">
+        <!-- How It Works: Plain Markdown + Deterministic Graph -->
+        <section class="graph-section" id="how-it-works">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-tag">Agent Setup</span>
-                    <h2 class="section-title">Set Up OKF with an Agent</h2>
-                    <p class="section-desc">Copy this prompt into your coding agent to install the OKF CLI and Agent Skill, then verify and report what was installed.</p>
+                    <span class="section-tag">How OKF Works</span>
+                    <h2 class="section-title">Plain Markdown in Git. Exact context for agents.</h2>
+                    <p class="section-desc">
+                        No proprietary datastore. An OKF bundle is a folder of Markdown files connected by normal links—so humans review PRs in Git while agents traverse exact relationships.
+                    </p>
                 </div>
-                <div class="getting-started-grid">
-                    <div class="steps-card">
-                        <h3>Agent setup prompt</h3>
-                        <pre class="step-code step-code-prompt"><code id="agent-setup-prompt">Set up OKF in this environment:
-1. Check the OS and architecture. Choose one documented CLI install method that works here: the official installer (curl -sSfL https://okfgo.dev/install.sh | sh) or build from source (git clone https://github.com/abcubed3/okf.git, then cd okf and go build -o okf ./cmd/okf). Use another documented option if needed.
-2. Add the OKF Agent Skill with: npx skills add https://github.com/abcubed3/okf/skills
-3. Verify the CLI and skill are installed. Report the installation method, CLI version and path, skill name and path, and any files or configuration created. Clearly report anything that could not be installed or verified.</code></pre>
-                        <button class="btn-copy" data-copy-target="agent-setup-prompt" aria-label="Copy OKF agent setup prompt">
-                            <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            <span class="copy-text">Copy Prompt</span>
-                        </button>
+
+                <div class="how-grid">
+                    <!-- Left: Example Markdown File -->
+                    <div class="concept-preview-card">
+                        <div class="panel-header">
+                            <span class="file-path-label">knowledge/tables/orders.md</span>
+                            <span class="status-pill status-success">Git-Native .md</span>
+                        </div>
+                        <pre class="concept-preview-code"><code><span class="syn-delim">---</span>
+<span class="syn-key">type:</span> <span class="syn-str">"Table"</span>
+<span class="syn-key">title:</span> <span class="syn-str">"Orders"</span>
+<span class="syn-key">description:</span> <span class="syn-str">"Customer checkout orders and line-item totals."</span>
+<span class="syn-key">resource:</span> <span class="syn-str">"public.orders"</span>
+<span class="syn-key">stale_after:</span> <span class="syn-str">"2027-01-01T00:00:00Z"</span>
+<span class="syn-key">verified:</span>
+  - <span class="syn-key">by:</span> <span class="syn-str">"human:data-team@acme.dev"</span>
+    <span class="syn-key">at:</span> <span class="syn-str">"2026-08-01T12:00:00Z"</span>
+<span class="syn-delim">---</span>
+
+# Orders Table
+
+Stores completed customer transactions.
+Foreign key `user_id` joins to <span class="syn-link">[Users](users.md)</span>.
+Operational retention follows <span class="syn-link">[DB Cleanup](../playbooks/database_cleanup.md)</span>.</code></pre>
                     </div>
+
+                    <!-- Right: Interactive BFS Traversal -->
+                    <div class="graph-card">
+                        <div class="panel-header">
+                            <span>Deterministic BFS Context Assembly</span>
+                            <button class="btn btn-primary btn-sm" id="btn-run-bfs" type="button">Animate Traversal</button>
+                        </div>
+                        <div class="graph-display-container">
+                            <div class="canvas-glow" aria-hidden="true"></div>
+                            <canvas id="graph-canvas" width="500" height="300" aria-label="Graph visualization of BFS link traversal starting from tables/orders"></canvas>
+                        </div>
+                        <div class="bfs-footer">
+                            <span class="bfs-status" id="bfs-status-text">Click "Animate Traversal" to trace links within a token budget.</span>
+                            <div class="bfs-steps" id="bfs-steps-container">
+                                <div class="bfs-step" id="step-0"><strong>Seed:</strong> <code>tables/orders</code></div>
+                                <div class="bfs-step" id="step-1"><strong>Hop 1:</strong> <code>tables/users</code> &amp; <code>playbooks/db_cleanup</code></div>
+                                <div class="bfs-step" id="step-2"><strong>Hop 2:</strong> <code>apis/create_user</code> &amp; <code>tables/transactions</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Concise Pillars -->
+                <div class="pillars-grid">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                        </div>
+                        <h3 class="feature-title">Auto-Harvest Sources</h3>
+                        <p class="feature-text">
+                            Bootstrap from Postgres, MySQL, BigQuery, Spanner, OpenAPI, Protobuf, Git, or web docs. Add <code>--ai-enrich</code> to draft descriptions.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Trust &amp; Governance (v0.3)</h3>
+                        <p class="feature-text">
+                            Track provenance (<code>sources</code>), human or CI verification (<code>verified</code>), freshness (<code>stale_after</code>), and certified SQL (<code>Attested Computation</code>).
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        </div>
+                        <h3 class="feature-title">MCP &amp; Agent Skills</h3>
+                        <p class="feature-text">
+                            Serve live search, bounded context assembly, and grounded Q&amp;A over MCP—or compile your bundle into a portable <code>SKILL.md</code>.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Fast Go Tooling</h3>
+                        <p class="feature-text">
+                            Parses ~97k concepts/sec in a single binary. Includes static HTML graph docs (<code>okf doc</code>), IDE diagnostics (<code>okf lsp</code>), and JSON-LD export.
+                        </p>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <!-- Features Category -->
-        <div class="features-category" id="features">
-        <!-- Command Simulator Section -->
-        <section class="demo-section" id="interactive-demo">
+        <!-- CLI Simulator Section -->
+        <section class="demo-section" id="cli">
             <div class="section-container">
                 <div class="section-header">
-                    <h2 class="section-title">High-Performance Utilities</h2>
-                    <p class="section-desc">Experience the OKF-go library, command-line interface and APIs. Switch tabs below to see simulated runs of our core subcommands.</p>
+                    <span class="section-tag">Core Workflow</span>
+                    <h2 class="section-title">Explore the CLI</h2>
+                    <p class="section-desc">Five subcommands cover everyday harvesting, validation, skill generation, MCP serving, and grounded Q&amp;A.</p>
                 </div>
 
                 <div class="terminal-container">
                     <div class="terminal-header">
-                        <div class="terminal-dots">
+                        <div class="terminal-dots" aria-hidden="true">
                             <span class="dot dot-red"></span>
                             <span class="dot dot-yellow"></span>
                             <span class="dot dot-green"></span>
                         </div>
-                        <div class="terminal-title">bash — okf</div>
+                        <div class="terminal-title">okf — terminal preview</div>
                     </div>
-                    
+
                     <div class="terminal-tabs" role="tablist" aria-label="CLI Command Tabs">
-                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="terminal-content" id="tab-lint">
-                            okf lint
-                        </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-skill">
-                            okf skill
-                        </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-ask">
-                            okf ask
-                        </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-harvest">
+                        <button class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="terminal-content" id="tab-harvest">
                             okf harvest
                         </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-assemble">
-                            okf assemble
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-lint">
+                            okf lint
                         </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-mcp">
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-skill">
+                            okf skill
+                        </button>
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-mcp">
                             okf mcp
                         </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-doc">
-                            okf doc
-                        </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-lsp">
-                            okf lsp
-                        </button>
-                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-sync">
-                            okf sync
+                        <button class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="terminal-content" id="tab-ask">
+                            okf ask
                         </button>
                     </div>
 
-                    <div class="terminal-body" id="terminal-content">
-                        <div class="terminal-line"><span class="prompt">$</span> <span class="command-input" id="terminal-command-text">okf lint ./knowledge-base</span></div>
-                        <div class="terminal-output" id="terminal-output-text">
-<!-- Output will be generated via JavaScript -->
-                        </div>
+                    <div class="terminal-body" id="terminal-content" role="tabpanel" aria-labelledby="tab-harvest">
+                        <div class="terminal-line"><span class="prompt">$</span> <span class="command-input" id="terminal-command-text"></span></div>
+                        <div class="terminal-output" id="terminal-output-text"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Key Features Grid -->
-        <section class="features-section">
+        <!-- Drop-in Integrations Section -->
+        <section class="integrations-section" id="integrations">
             <div class="section-container">
                 <div class="section-header">
-                    <span class="section-tag">Robust Architecture</span>
-                    <h2 class="section-title">Built for Modern AI Integration</h2>
-                    <p class="section-desc">Every element of OKF is optimized to bridge standard development cycles with autonomous agent workflows.</p>
+                    <span class="section-tag">Integrations</span>
+                    <h2 class="section-title">Drop into your existing stack</h2>
+                    <p class="section-desc">Copy a ready-made snippet for your coding agent, MCP client, CI pipeline, or team server.</p>
                 </div>
 
-                <div class="features-grid">
-                    <!-- Feature 0: OKF Spec v0.3 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-                        </div>
-                        <h3 class="feature-title">OKF Spec v0.3 Trust &amp; Governance</h3>
-                        <p class="feature-text">
-                            First-class support for OKF Spec v0.3: track provenance (<code>sources</code>), freshness (<code>stale_after</code>), current-only verification (<code>verified</code> &ge; <code>generated.at</code>), lifecycle forwarding (<code>superseded_by</code>), <code>license</code>, <code>x-*</code> extensions, and <strong>Attested Computation</strong> (<code>type: Attested Computation</code>).
-                        </p>
+                <div class="integration-card">
+                    <div class="integration-tabs" role="tablist" aria-label="Integration Configuration Tabs">
+                        <button class="integration-tab active" type="button" role="tab" aria-selected="true" aria-controls="integration-panel" id="int-tab-mcp" data-integration="mcp">
+                            MCP Client (mcp.json)
+                        </button>
+                        <button class="integration-tab" type="button" role="tab" aria-selected="false" aria-controls="integration-panel" id="int-tab-skill" data-integration="skill">
+                            Agent Skills
+                        </button>
+                        <button class="integration-tab" type="button" role="tab" aria-selected="false" aria-controls="integration-panel" id="int-tab-ci" data-integration="ci">
+                            GitHub Actions CI
+                        </button>
+                        <button class="integration-tab" type="button" role="tab" aria-selected="false" aria-controls="integration-panel" id="int-tab-docker" data-integration="docker">
+                            Docker (HTTP MCP)
+                        </button>
                     </div>
 
-                    <!-- Feature: AI Agent Skills Engine -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><line x1="9" y1="7" x2="15" y2="7"></line><line x1="9" y1="11" x2="13" y2="11"></line></svg>
+                    <div class="integration-body" id="integration-panel" role="tabpanel" aria-labelledby="int-tab-mcp">
+                        <div class="integration-meta">
+                            <p class="integration-desc" id="integration-desc">
+                                Add OKF to Claude Desktop, Cursor, or Antigravity to expose <code>list_concepts</code>, <code>search_concepts</code>, <code>get_concept</code>, <code>assemble_context</code>, <code>export_agent_skill</code>, and <code>ask_knowledge_base</code>.
+                            </p>
                         </div>
-                        <h3 class="feature-title">AI Agent Skills Engine</h3>
-                        <p class="feature-text">
-                            Compile verified knowledge into production Agent Skills (<code>SKILL.md</code>) for Google Antigravity, Claude Code, Cursor, and Codex with <code>okf skill export</code>. Or run <code>okf skill install</code> for workspace setup.
-                        </p>
-                    </div>
-
-                    <!-- Feature: Grounded AI Q&A -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Grounded AI Q&amp;A</h3>
-                        <p class="feature-text">
-                            Ask natural language questions from the CLI with <code>okf ask</code>. Combines graph BFS context assembly with Gemini models for hallucination-free answers citing verified sources and verbatim SQL queries.
-                        </p>
-                    </div>
-
-                    <!-- Feature 1 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                        </div>
-                        <h3 class="feature-title">Conformance Engine & Linter</h3>
-                        <p class="feature-text">
-                            Run <code>okf lint</code> to validate YAML schemas, catch unparseable headers, and trace all internal links to prevent disconnected or dead paths.
-                        </p>
-                    </div>
-
-                    <!-- Feature 2 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                        </div>
-                        <h3 class="feature-title">Metadata Harvesters</h3>
-                        <p class="feature-text">
-                            Auto-extract schemas. Point <code>okf harvest</code> at PostgreSQL, MySQL, Spanner, BigQuery, OpenAPI, Git repos, or Web pages.
-                        </p>
-                    </div>
-
-                    <!-- Feature 3 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                        </div>
-                        <h3 class="feature-title">Dynamic Context Assembly</h3>
-                        <p class="feature-text">
-                            Compile subgraphs instantly. Use BFS link traversal to query surrounding information and output XML/Markdown blocks structured for direct LLM ingestion.
-                        </p>
-                    </div>
-
-                    <!-- Feature 4 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-                        </div>
-                        <h3 class="feature-title">Model Context Protocol (MCP)</h3>
-                        <p class="feature-text">
-                            Serve knowledge directly. <code>okf mcp</code> exposes tools like <code>assemble_context</code>, <code>export_agent_skill</code>, and <code>ask_knowledge_base</code> directly to Claude Desktop, Cursor, and Antigravity.
-                        </p>
-                    </div>
-
-                    <!-- Feature 5 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Interactive HTML Compiler</h3>
-                        <p class="feature-text">
-                            Build static developer docs. Run <code>okf doc</code> to compile your Markdown knowledge bundle into a fully searchable static website with relationship graphs.
-                        </p>
-                    </div>
-
-                    <!-- Feature 6 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
-                        </div>
-                        <h3 class="feature-title">IDE Language Server (LSP)</h3>
-                        <p class="feature-text">
-                            Get real-time validation. <code>okf lsp</code> implements a Language Server over Stdio, flagging missing metadata fields and broken links inside VS Code or Cursor as you type.
-                        </p>
-                    </div>
-
-                    <!-- Feature 7 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Bi-directional Sync Daemon</h3>
-                        <p class="feature-text">
-                            Unify knowledge bases. <code>okf sync</code> synchronizes concepts dynamically with external sources like Google Drive, Notion, Confluence, and Jira.
-                        </p>
-                    </div>
-
-                    <!-- Feature 8 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Bundle Operations</h3>
-                        <p class="feature-text">
-                            Compare and merge. Use <code>okf diff</code> and <code>okf merge</code> to compare bundles for differences or unify distributed knowledge bases.
-                        </p>
-                    </div>
-
-                    <!-- Feature 9 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"></path></svg>
-                        </div>
-                        <h3 class="feature-title">AI Enrich</h3>
-                        <p class="feature-text">
-                            AI-powered organization. Use the <code>--ai-enrich</code> flag during harvesting to automatically generate descriptions, tag concepts, and enrich metadata using Gemini and any other models.
-                        </p>
-                    </div>
-
-                    <!-- Feature 10 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Knowledge Export</h3>
-                        <p class="feature-text">
-                            Export your knowledge graph in multiple formats. Run <code>okf export</code> to compile your entire OKF knowledge graph into standard schema.org JSON-LD format for easy sharing.
-                        </p>
-                    </div>
-
-                    <!-- Feature 11 -->
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <h3 class="feature-title">Blazing Fast Performance</h3>
-                        <p class="feature-text">
-                            Written in highly-optimized Go. Parses ~97k concepts/sec, executes 200-node graph BFS context assembly in &lt;40&mu;s, and validates full 100-concept bundles in ~125&mu;s.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        </div>
-
-        <!-- Visual Context Graph Assembly Section -->
-        <section class="graph-section" id="graph-visualization">
-            <div class="section-container">
-                <div class="grid grid-2-cols">
-                    <div class="graph-info">
-                        <span class="section-tag">Deterministic BFS Assembly</span>
-                        <h2 class="section-title">Context Assembly, Visualized</h2>
-                        <p class="section-desc">
-                            Vector databases fetch fragmented snippets out of order. OKF works differently: starting from a concept, it performs a <strong>Breadth-First Search (BFS)</strong> along explicit relative Markdown links.
-                        </p>
-                        <p class="section-desc">
-                            It pulls in adjacent nodes (like database schemas referenced by tables, or APIs writing to columns) until the target character budget is filled.
-                        </p>
-                        <div class="graph-controls">
-                            <button class="btn btn-primary" id="btn-run-bfs">Animate Context Traversal</button>
-                            <span class="bfs-status" id="bfs-status-text">Ready to traverse...</span>
-                        </div>
-
-                        <div class="bfs-steps" id="bfs-steps-container">
-                            <div class="bfs-step" id="step-0"><strong>Root:</strong> Starting BFS at <code>tables/orders</code>...</div>
-                            <div class="bfs-step" id="step-1"><strong>Depth 1:</strong> Following link to <code>tables/users</code> (found in body).</div>
-                            <div class="bfs-step" id="step-2"><strong>Depth 2:</strong> Following link to <code>playbooks/database_cleanup</code>.</div>
-                        </div>
-                    </div>
-
-                    <div class="graph-display-container">
-                        <div class="canvas-glow"></div>
-                        <canvas id="graph-canvas" width="500" height="400"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- MCP Tools -->
-        <section class="features-section" id="mcp-tools">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-tag">Model Context Protocol</span>
-                    <h2 class="section-title">OKF MCP Tools</h2>
-                    <p class="section-desc">Connect an MCP-compatible agent to the OKF server to explore concepts, assemble context, and ask grounded questions.</p>
-                </div>
-
-                <div class="getting-started-grid">
-                    <div class="steps-card">
-                        <h3>Run MCP with Docker Compose</h3>
-                        <p>Run MCP over HTTP with Docker Compose. Save this as <code>compose.yaml</code> and change <code>my_bundle_location</code> to the path to your bundle:</p>
-                        <div class="code-block-container">
-                            <pre id="okf-compose-config"><code>services:
-  okf-kb:
-    image: ghcr.io/abcubed3/okf:latest
-    command: ["mcp", "--bundle", "/bundle", "--transport", "http", "--port", "8080"]
-    ports:
-      - "127.0.0.1:8080:8080"
-    volumes:
-      - ./my_bundle_location:/bundle:ro</code></pre>
-                            <button class="btn-copy" data-copy-target="okf-compose-config" aria-label="Copy Docker Compose configuration">
-                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1-2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="features-grid">
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>list_concepts</code></h3>
-                        <p class="feature-text">List all concepts in the OKF bundle with their types and descriptions.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>search_concepts</code></h3>
-                        <p class="feature-text">Search concepts by query across IDs, titles, descriptions, or tags, or filter by type or tag.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>get_concept</code></h3>
-                        <p class="feature-text">Retrieve a specific OKF concept document by its unique ID, such as <code>tables/users</code>.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>assemble_context</code></h3>
-                        <p class="feature-text">Build a pruned, cohesive context subset of the concept graph from a concept ID by traversing related links.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>export_agent_skill</code></h3>
-                        <p class="feature-text">Compile the OKF bundle, or a filtered tag/type subset, into an AI Agent Skill (<code>SKILL.md</code>) for IDE coding agents.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3 class="feature-title"><code>ask_knowledge_base</code></h3>
-                        <p class="feature-text">Answer natural-language questions grounded strictly in OKF bundle concepts and attested computations.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- Agent Skill Installation -->
-        <section class="getting-started-section" id="agent-skill">
-            <div class="section-container">
-                <div class="section-header">
-                    <span class="section-tag">Agent Skills</span>
-                    <h2 class="section-title">Add the OKF Agent Skill</h2>
-                    <p class="section-desc">Use your coding agent to create OKF bundles and edit existing concepts and metadata.</p>
-                    <p class="section-desc">The skill helps keep bundles compliant with OKF Spec v0.3, records changes in log entries, and runs <code>okf lint</code> to validate your bundle.</p>
-                </div>
-
-                <div class="getting-started-grid">
-                    <div class="steps-card">
-                        <h3>Install from GitHub</h3>
-                        <p>Run this command from your project directory:</p>
-                        <div class="code-block-container">
-                            <pre><code>npx skills add https://github.com/abcubed3/okf/skills</code></pre>
-                            <button class="btn-copy" aria-label="Copy Agent Skill installation command">
-                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
-                        </div>
-                        <p class="info-note">Browse the <a href="https://github.com/abcubed3/okf/tree/main/skills" target="_blank" rel="noopener noreferrer">OKF Agent Skills on GitHub</a>.</p>
-                        <h3>Try it</h3>
-                        <p>Once the skill is installed, ask your coding agent to create or edit an OKF bundle with:</p>
-                        <div class="code-block-container">
-                            <pre><code>/okf update the concept with the added information</code></pre>
-                            <button class="btn-copy" aria-label="Copy OKF skill command">
-                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <div class="code-block-container integration-code-box">
+                            <pre><code id="integration-code">{
+  "mcpServers": {
+    "okf-knowledge": {
+      "command": "okf",
+      "args": ["mcp", "--bundle", "./knowledge"]
+    }
+  }
+}</code></pre>
+                            <button class="btn-copy" type="button" data-copy-target="integration-code" aria-label="Copy integration snippet">
+                                <svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span class="copy-text">Copy</span>
                             </button>
                         </div>
                     </div>
@@ -537,20 +394,21 @@
         <section class="playground-section" id="playground">
             <div class="section-container">
                 <div class="section-header">
-                    <h2 class="section-title">Playground</h2>
-                    <p class="section-desc">Edit the OKF document YAML frontmatter or body below. Watch our conformance compiler parse, check links, and display structured concept tokens in real-time.</p>
+                    <span class="section-tag">Interactive Spec Preview</span>
+                    <h2 class="section-title">Try an OKF concept in your browser</h2>
+                    <p class="section-desc">Edit the YAML frontmatter or Markdown body below to test OKF v0.3 validation, trust tiers, and link extraction live.</p>
                 </div>
 
                 <div class="playground-grid">
                     <div class="panel panel-left">
                         <div class="panel-header">
-                            <span>Markdown Editor (OKF v0.3 Frontmatter)</span>
+                            <label for="playground-textarea">Markdown Editor (OKF v0.3)</label>
                             <span class="status-pill status-success" id="parser-status">Perfect Match</span>
                         </div>
                         <textarea class="code-editor" id="playground-textarea" spellcheck="false">---
 type: "Metric"
 title: "Monthly Recurring Revenue (MRR)"
-description: "Total normalized monthly subscription revenue generated by active accounts."
+description: "Normalized monthly subscription revenue from active accounts."
 resource: "analytics.mrr_daily"
 tags: [finance, revenue, kpi]
 status: "stable"
@@ -560,7 +418,6 @@ sources:
   - id: "stripe-docs"
     resource: "https://stripe.com/docs/billing/subscriptions"
     title: "Stripe Subscription Lifecycle Specs"
-    author: "team:billing-architecture"
 
 generated:
   by: "okf-harvester/v0.3"
@@ -573,103 +430,90 @@ verified:
 
 # Monthly Recurring Revenue (MRR)
 
-MRR measures predictable subscription revenue components.[^stripe-docs] It references the [MRR Calculation Query](/attestations/mrr_query.md).
+MRR measures predictable subscription revenue.[^stripe-docs]
+Calculated via [MRR Query](/attestations/mrr_query.md) from [Subscriptions](/tables/subscriptions.md).
 
 [^stripe-docs]: Stripe Subscription Lifecycle Specs
 </textarea>
                     </div>
 
                     <div class="panel panel-right">
-                        <div class="panel-header">Parsed OKF Concept Object</div>
+                        <div class="panel-header">
+                            <span>Parsed Concept Summary</span>
+                            <span class="metadata-value-pill" id="out-version">v0.3</span>
+                        </div>
                         <div class="parsed-output-container">
                             <div class="parsed-metadata">
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Concept ID:</span>
+                                    <span class="metadata-label">Concept ID</span>
                                     <span class="metadata-value" id="out-id">metrics/monthly_recurring_revenue</span>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">OKF Spec Version:</span>
-                                    <span class="metadata-value-pill" id="out-version">v0.3</span>
+                                    <span class="metadata-label">Type &amp; Status</span>
+                                    <div class="tags-container">
+                                        <span class="metadata-value-pill" id="out-type">Metric</span>
+                                        <span class="status-pill status-success" id="out-status">stable</span>
+                                    </div>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Type:</span>
-                                    <span class="metadata-value-pill" id="out-type">Metric</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Title:</span>
+                                    <span class="metadata-label">Title</span>
                                     <span class="metadata-value" id="out-title">Monthly Recurring Revenue (MRR)</span>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Description:</span>
-                                    <span class="metadata-value" id="out-desc">Total normalized monthly subscription revenue generated by active accounts.</span>
+                                    <span class="metadata-label">Description</span>
+                                    <span class="metadata-value metadata-prose" id="out-desc">Normalized monthly subscription revenue from active accounts.</span>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Trust Status:</span>
-                                    <span class="metadata-value-pill status-pill status-success" id="out-status">stable</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Freshness Expiration:</span>
-                                    <span class="metadata-value" id="out-stale">2027-01-01T00:00:00Z</span>
-                                </div>
-                                <div class="metadata-row">
-                                    <span class="metadata-label">Verification Tier:</span>
+                                    <span class="metadata-label">Trust Tier</span>
                                     <span class="metadata-value" id="out-verified">human-reviewed (human:lead-data-architect@company.com)</span>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Resource:</span>
+                                    <span class="metadata-label">Fresh Until</span>
+                                    <span class="metadata-value" id="out-stale">2027-01-01T00:00:00Z</span>
+                                </div>
+                                <div class="metadata-row">
+                                    <span class="metadata-label">Resource</span>
                                     <span class="metadata-value" id="out-resource">analytics.mrr_daily</span>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Tags:</span>
-                                    <div class="tags-container" id="out-tags">
-                                        <span class="tag-pill">finance</span>
-                                        <span class="tag-pill">revenue</span>
-                                        <span class="tag-pill">kpi</span>
-                                    </div>
+                                    <span class="metadata-label">Tags</span>
+                                    <div class="tags-container" id="out-tags"></div>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Sources (Provenance):</span>
-                                    <div class="links-container" id="out-sources">
-                                        <span class="link-pill">stripe.com/docs/billing/subscriptions</span>
-                                    </div>
+                                    <span class="metadata-label">Provenance</span>
+                                    <div class="links-container" id="out-sources"></div>
                                 </div>
                                 <div class="metadata-row">
-                                    <span class="metadata-label">Internal Links:</span>
-                                    <div class="links-container" id="out-links">
-                                        <span class="link-pill">/attestations/mrr_query.md</span>
-                                    </div>
+                                    <span class="metadata-label">Graph Links</span>
+                                    <div class="links-container" id="out-links"></div>
                                 </div>
                             </div>
-                            <div class="parsed-body-header">Raw Document Body</div>
-                            <pre class="body-pre" id="out-body"># Monthly Recurring Revenue (MRR)
-
-MRR measures predictable subscription revenue components.[^stripe-docs] It references the [MRR Calculation Query](/attestations/mrr_query.md).
-
-[^stripe-docs]: Stripe Subscription Lifecycle Specs</pre>
+                            <div class="parsed-body-header">Markdown Body</div>
+                            <pre class="body-pre" id="out-body"></pre>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="favicon.svg" alt="OKF-go Logo" class="footer-logo-icon" width="28" height="28">
+                <img src="favicon.svg" alt="OKF-go Logo" class="footer-logo-icon" width="26" height="26">
                 <span class="footer-logo-text">OKFgo</span>
+                <span class="footer-copy">&copy; 2026 &bull; Apache 2.0 License</span>
             </div>
-            <p>&copy; 2026 OKFgo. Open source under the Apache 2.0 License.</p>
             <div class="footer-links">
                 <a href="https://github.com/abcubed3/okf" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a href="https://github.com/open-knowledge-format/open-knowledge-format/blob/main/SPEC.md" target="_blank" rel="noopener noreferrer">OKF Specification</a>
-                <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol</a>
+                <a href="https://github.com/abcubed3/okf/releases" target="_blank" rel="noopener noreferrer">Releases</a>
+                <a href="https://github.com/abcubed3/okf/tree/main/docs" target="_blank" rel="noopener noreferrer">Docs</a>
+                <a href="https://github.com/open-knowledge-format/open-knowledge-format" target="_blank" rel="noopener noreferrer">OKF Spec v0.3</a>
             </div>
         </div>
     </footer>
 
-    <!-- Client-side Logic Script -->
     <script type="module" src="app.js"></script>
 </body>
+
 </html>

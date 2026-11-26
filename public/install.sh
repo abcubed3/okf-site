@@ -64,7 +64,7 @@ fi
 VERSION="${TAG#v}"
 
 echo "Selected release tag: ${TAG}"
-echo "Downloading OKF CLI ${TAG} for ${OS}/${ARCH}..."
+echo "Downloading OKF-go ${TAG} for ${OS}/${ARCH}..."
 
 TARBALL="${BINARY}_${VERSION}_${OS}_${ARCH}.${EXT}"
 URL="https://github.com/${OWNER}/${REPO}/releases/download/${TAG}/${TARBALL}"
@@ -153,5 +153,3 @@ if command -v curl >/dev/null 2>&1; then
       }]
     }' >/dev/null 2>&1 &
 fi
-
-

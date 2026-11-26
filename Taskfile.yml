@@ -1,0 +1,54 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  HOST: '{{default "127.0.0.1" .HOST}}'
+  PORT: '{{default "9500" .PORT}}'
+  FUNCTIONS_PORT: '{{default "9501" .FUNCTIONS_PORT}}'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  sync:
+    desc: Sync root site assets into public/ for Firebase Hosting
+    cmds:
+      - mkdir -p public
+      - |
+        for f in index.html style.css app.js robots.txt *.png *.jpg *.jpeg *.svg *.ico *.webmanifest; do
+          if [ -e "$f" ]; then
+            cp "$f" public/
+          fi
+        done
+      - '[ -f ../okf/install.sh ] && cp ../okf/install.sh public/install.sh || true'
+
+  serve:
+    desc: Run the site locally with instant reload on file edits (override via PORT=3000)
+    aliases: [dev, run, start]
+    deps: [sync]
+    cmds:
+      - echo "Serving site at http://{{.HOST}}:{{.PORT}} (Ctrl+C to stop)"
+      - python3 -m http.server {{.PORT}} --bind {{.HOST}}
+
+  serve:public:
+    desc: Sync assets and serve the Firebase Hosting public/ directory locally
+    deps: [sync]
+    cmds:
+      - echo "Serving public/ at http://{{.HOST}}:{{.PORT}} (Ctrl+C to stop)"
+      - python3 -m http.server {{.PORT}} --bind {{.HOST}} --directory public
+
+  emulate:
+    desc: Sync assets and start the local Firebase Hosting emulator
+    aliases: [firebase]
+    deps: [sync]
+    cmds:
+      - firebase emulators:start --only hosting
+
+  functions:run:
+    desc: Run the Go telemetry proxy locally
+    dir: functions
+    cmds:
+      - PORT={{.FUNCTIONS_PORT}} go run .
